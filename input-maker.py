@@ -1,6 +1,10 @@
 import os
 import glob
-from ase.io import read
+try:
+    from ase.io import read
+except:
+    print("ERROR: ASE package not found, install it with 'pip install ase'")
+    exit()
 
 
 ############################################################
