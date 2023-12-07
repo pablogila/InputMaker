@@ -1,5 +1,13 @@
 *template*
 *TEMPLATE*
+*test*
+*TEST*
+*ikur*
+*IKUR*
+/.venv/
+*data*
+*DATA*
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
