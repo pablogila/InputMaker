@@ -1,16 +1,19 @@
 import os
-import glob
+#import glob
 try:
     from ase.io import read
 except:
-    print("  ERROR:  ASE package not found, install it with 'pip install ase'")
+    print("  ERROR: ASE package not found, install it with 'pip install ase'")
     exit()
 
 
 ###########################################################################
 ## Create CP2K input files from a template, easy piecy.
 ###########################################################################
-# Keywords inp:
+# Template files, must be in the same folder as this script:
+inp_template_extension = '.inp.template'
+slurm_template_extension = '.sh.template'
+# Keywords on the inp template file:
 key_cell = '!<keyword-cell>'
 key_coordinates = '!<keyword-coordinates>'
 key_topology_init = '!<keyword-topology-init>'
@@ -19,15 +22,19 @@ key_topology_end = '!<keyword-topology-end>'
 key_pdb_filename = '!<keyword-pdb-filename>' # '        COORD_FILE_NAME ./dumped.pdb'
 key_psf_filename = '!<keyword-psf-filename>' # '        CONN_FILE_NAME ./dumped.psf'
 key_steps = '!<keyword-steps>'
-# Keywords slurm:
+# Keywords on the slurm template file:
 key_jobname = '<keyword-JOBNAME>'
 key_filename = '<keyword-FILENAME>'
 ###########################################################################
+# Extension for an old input to be reused:
 old_inp_extension = '.inp.old'
-structure_extensions = [old_inp_extension, '.cif', '.cell', '.pdb'] # Ordered by priority
+# Structural file extensions, ordered by priority:
+structure_extensions = [old_inp_extension, '.cif', '.cell', '.pdb']
+# If there are more than one structural file per folder, these ones will be preferred:
 preferred_structure_file = 'dumped.pdb'
+preferred_psf_file = 'dumped.psf'
 ###########################################################################
-# The psf file needs to be fixed for some weird reason.
+# The psf file may have to be fixed for some weird reason...
 fixing_psf = {
     'H       H     -99.000000' : 'H       H       0.023000',
     'C       C     -99.000000' : 'C       C       0.771000',
@@ -40,30 +47,34 @@ fixing_psf = {
 
 
 def version():
-    return 'input-maker.2023.12.11.1500'
+    return 'v.2023.12.11.1900'
+
+
+def name():
+    return 'input-maker.py'
 
 
 def cp2k():
 
-    only_one_sh_per_folder = True
+    # Initialize the warning flags:
+    only_one_slurm_per_folder = True
+    is_first_run_needed = False
 
     welcome_cp2k()
 
     path = os.getcwd()
-
-    inp_template = get_file(path, '.inp.template')
-    slurm_template = get_file(path, '.sh.template')
+    inp_template = get_file(path, inp_template_extension)
+    slurm_template = get_file(path, slurm_template_extension)
 
     if inp_template is None:
-        print("  ERROR:  No '*.inp.template' input found in path, exiting...")
+        print("  ERROR: No '*" + inp_template_extension + "' input found in path, exiting...\n")
         exit()
-    new_inp_name = inp_template.replace('.template','')
+    new_inp_name = inp_template.replace(inp_template_extension, '.inp')
 
-    if slurm_template is None:
-        print("  WARNING:  No '*.sh.template' slurm template found in path, you will have to run manually")
+    if slurm_template is None: # Warning will be printed at the end
         new_slurm_name = None
     else:
-        new_slurm_name = slurm_template.replace('.template','')
+        new_slurm_name = slurm_template.replace(slurm_template_extension, '.sh')
 
     for folder in os.listdir('.'):
         if os.path.isdir(folder):
@@ -76,38 +87,40 @@ def cp2k():
 
             new_inp_path = os.path.join(folder, new_inp_name)
 
-            psf_file = get_file(folder, '.psf')
+            psf_file = get_file(folder, '.psf', preferred_psf_file)
             pdb_file = get_file(folder, '.pdb', preferred_structure_file)
 
             cell = get_cell(structure_file)
             if cell is None:
                 continue
 
-            newfile_from_template(new_inp_path, inp_template)
+            template_to_newfile(inp_template, new_inp_path, "! This file was created from " + inp_template + " with " + name() + " " + version())
 
             replace_lines_under_keyword(cell, key_cell, new_inp_path)
 
             if not psf_file: # 1st run
+                is_first_run_needed = True # Raise a warning flag
                 positions = get_coords(structure_file)
                 if positions is None:
                     continue
+                template_to_newfile(new_inp_path, new_inp_path, "! WARNING: Perform a first run of CP2K to create the *.psf file, then run again " + name() + " and CP2K.")
                 delete_lines_between_keywords(key_topology_run, key_topology_end, new_inp_path)
                 add_lines_under_keyword(positions, key_coordinates, new_inp_path)
                 replace_lines_under_keyword(['    STEPS 1'], key_steps, new_inp_path)
 
-                print("  FIRST RUN:  Run CP2K to create the *.psf file, then run input-maker and CP2K again")
-                print("  Created " + new_inp_path)
+                print("  Created " + new_inp_path + " (without a *.psf file!)")
+                print("  IMPORTANT: Run CP2K to create the *.psf file, then run again " + name() + " and CP2K.")
 
             else: # 2nd run
                 delete_lines_between_keywords(key_topology_init, key_topology_run, new_inp_path)
                 replace_lines_under_keyword(['        COORD_FILE_NAME ./' + pdb_file], key_pdb_filename, new_inp_path)
                 replace_lines_under_keyword(['        CONN_FILE_NAME ./' + psf_file], key_psf_filename, new_inp_path)
 
-                correct_psf(psf_file, fixing_psf)
+                correct_psf(os.path.join(folder, psf_file), fixing_psf)
 
                 print("  Created " + new_inp_path)
 
-            if slurm_template:
+            if slurm_template: # Create slurm file
                 new_slurm_path = os.path.join(folder, new_slurm_name)
                 copy_as_newfile(slurm_template, new_slurm_path)
                 replace_str_on_keyword(folder, key_jobname, new_slurm_path)
@@ -116,15 +129,20 @@ def cp2k():
                     replace_full_line_with_keyword('#SBATCH --time=00:02:00', '#SBATCH --time=', new_slurm_path)
                 print("  Created " + new_slurm_path)
             
-            if count_files(folder, '.sh') > 1:
-                only_one_sh_per_folder = False
+            if count_files(folder, '.sh') != 1:
+                only_one_slurm_per_folder = False # Raise a warning flag
 
             print("")
     
-    if only_one_sh_per_folder:
+    print("  Done!")
+    if is_first_run_needed:
+        print("  WARNING: Running without a *.psf file is an experimental feature, it may not work...")
+    if only_one_slurm_per_folder and slurm_template:
         print("  Run all inputs at once with 'source sbatch-all.sh'\n")
+    elif not slurm_template:
+        print("  WARNING: No *" + slurm_template_extension + " slurm template found in path, you will have to create slurms manually!\n")
     else:
-        print("  WARNING:  More than one *.sh file per folder. You should sbatch' them one by one.\n")
+        print("  WARNING: More than one *.sh file per folder. You should sbatch' them one by one.\n")
 
 
 ###########################################################################
@@ -138,7 +156,7 @@ def get_file(folder, extensions, preference=None):
         for file in files:
             if preference in file:
                 return file
-        print("  ERROR:  "+folder+" contains too many "+extensions+" files, skipping...")
+        print("  ERROR: " + folder + " contains too many " + extensions + " files, skipping...")
         return None
     return files[0]
 
@@ -172,11 +190,11 @@ def copy_as_newfile(template, new_file):
     return
 
 
-def newfile_from_template(new_file, template):
+def template_to_newfile(template, new_file, comment):
     copy_as_newfile(template, new_file)
     with open(new_file, 'r') as file:
         lines = file.readlines()
-    lines.insert(0, "! This file was created from '" + template + "' with " + version() + "\n")
+    lines.insert(0, comment + "\n")
     with open(new_file, 'w') as file:
         file.writelines(lines)
 
@@ -207,7 +225,7 @@ def add_lines_under_keyword(lines, keyword, filename):
         with open(filename, 'w') as file:
             file.writelines(document)
     else:
-        print("  ERROR:  Didn't find the '"+keyword+"' keyword in "+filename)
+        print("  ERROR:  Didn't find the '" + keyword + "' keyword in " + filename)
 
 
 def replace_lines_under_keyword(lines, keyword, filename):
@@ -221,7 +239,7 @@ def replace_lines_under_keyword(lines, keyword, filename):
         with open(filename, 'w') as file:
             file.writelines(document)
     else:
-        print("  ERROR:  Didn't find the '"+keyword+"' keyword in "+filename)
+        print("  ERROR: Didn't find the '" + keyword + "' keyword in " + filename)
 
 
 def replace_full_line_with_keyword(new_text, keyword, filename):
@@ -256,7 +274,7 @@ def correct_psf(filename, fixing_psf):
                 found_key = True
                 break
         if found_key:
-            print("Correcting "+filename+"...")
+            print("  Correcting " + filename + "...")
             for key, value in fixing_psf.items():
                 replace_str_on_keyword(value, key, filename)
             break
@@ -265,20 +283,20 @@ def correct_psf(filename, fixing_psf):
 
 def get_cell(structure_file):
     if old_inp_extension in structure_file:
-        method = "get_cell_from_inp() of " + version()
+        method = "get_cell_from_inp() of " + name() + " " + version()
         rows = get_cell_from_inp(structure_file)
     else:
-        method = "get_cell_from_ase() of " + version()
+        method = "get_cell_from_ase() of " + name() + " " + version()
         rows = get_cell_from_ase(structure_file)
     if rows == None or len(rows) != 3:
-        print("  ERROR:  Didn't find the cell parameters in "+structure_file)
+        print("  ERROR: Didn't find the cell parameters in " + structure_file)
         return None
 
     cell = [None, None, None, None]
     cell[0] = "        A   " + rows[0]
     cell[1] = "        B   " + rows[1]
     cell[2] = "        C   " + rows[2]
-    cell[3] = "        ! These cell parmeters were obtained from "+structure_file+" with the method "+method
+    cell[3] = "        ! These cell parameters were obtained from " + structure_file + " with the method " + method
     return cell
 
 
@@ -313,26 +331,26 @@ def get_coords(structure_file_path):
         symbols = structure.get_chemical_symbols()
         coords = structure.get_positions()
         coords_with_symbols = ["{} {:0.6f} {:0.6f} {:0.6f}".format(symbol, *coord) for symbol, coord in zip(symbols, coords)]
-        coords_with_symbols.append('! These coordinates were obtained from '+structure_file_path+' with the method get_coords() of '+version())
+        coords_with_symbols.append("! These positions were obtained from " + structure_file_path + " with the method get_coords() of " + name() + " " + version())
         return coords_with_symbols
     except:
-        print("  ERROR:  Didn't find the cell positions in "+structure_file)
+        print("  ERROR: Didn't find the cell positions in " + structure_file)
         return None
 
 
 def welcome_cp2k():
     print("")
-    print("  ------------------------------------------------------------")
-    print("  Welcome to " + version() + " for CP2K inputs.")
-    print("  You should have already configured the '*.inp.template'")
-    print("  and '*.sh.template' files, else check the README.md.")
-    print("  ------------------------------------------------------------")
+    print("  -------------------------------------------------------------")
+    print("  Welcome to " + name() + " " + version() + " for CP2K inputs.")
+    print("  You should have already configured the '*" + inp_template_extension + "'")
+    print("  and '*" + slurm_template_extension + "' files, else check the README.md.")
+    print("  -------------------------------------------------------------")
     print("  This is free software, and you are welcome to")
     print("  redistribute it under GNU General Public License.")
     print("  If you find this code useful, a citation would be awesome :D")
-    print("  Pablo Gila-Herranz, “"+version()+"”, 2023.")
+    print("  Pablo Gila-Herranz, “" + name() + "” " + version() + ", 2023.")
     print("  https://github.com/pablogila/input-maker")
-    print("  ------------------------------------------------------------")
+    print("  -------------------------------------------------------------")
     print("")
 
 
