@@ -3,7 +3,7 @@ import glob
 try:
     from ase.io import read
 except:
-    print("ERROR: ASE package not found, install it with 'pip install ase'")
+    print("ERROR:  ASE package not found, install it with 'pip install ase'")
     exit()
 
 
@@ -39,7 +39,6 @@ fixing_psf = {
 ###########################################################################
 
 
-
 def cp2k():
 
     path = os.getcwd()
@@ -58,7 +57,6 @@ def cp2k():
     else:
         new_slurm_name = slurm_template.replace('.template','')
 
-    # Main loop
     for folder in os.listdir('.'):
         if os.path.isdir(folder):
 
@@ -74,28 +72,28 @@ def cp2k():
             cell = get_cell(structure_file)
             if cell is None:
                 continue
-            replace_lines_under_keyword(cell, key_cell, new_inp_path) # TO-DO
+            replace_lines_under_keyword(cell, key_cell, new_inp_path)
 
             if slurm_template:
                 new_slurm_path = os.path.join(folder, new_slurm_name)
-                new_file_from_template(new_slurm_path, slurm_template) # TO-DO
-                replace_keyword(key_jobname, folder, new_slurm_path)
-                replace_keyword(key_filename, new_inp_name.replace('.inp', ''), new_slurm_path)
+                copy_as_newfile(slurm_template, new_slurm_path)
+                replace_str_on_keyword(folder, key_jobname, new_slurm_path)
+                replace_str_on_keyword(new_inp_name.replace('.inp', ''), key_filename, new_slurm_path)
 
             if not psf_file: # 1st run
                 positions = get_coords(structure_file)
                 if positions is None:
                     continue
-                new_file_from_template(new_inp_name, inp_template) # TO-DO
-                delete_lines_between_keywords(key_topology_run, key_topology_end, new_inp_path) # TO-DO
-                add_lines_under_keyword(positions, key_coordinates, new_inp_path) # TO-DO
+                copy_as_newfile(inp_template, new_inp_path)
+                delete_lines_between_keywords(key_topology_run, key_topology_end, new_inp_path)
+                add_lines_under_keyword(positions, key_coordinates, new_inp_path)
                 replace_lines_under_keyword(['    STEPS 1'], key_steps, new_inp_path)
 
                 if slurm_template:
                     replace_full_line_with_keyword('#SBATCH --time=00:02:00', '#SBATCH --time=', new_slurm_path)
 
             else: # 2nd run
-                new_file_from_template(new_inp_name, inp_template) # TO-DO
+                copy_as_newfile(inp_template, new_inp_path)
                 delete_lines_between_keywords(key_topology_init, key_topology_run, new_inp_path)
                 replace_lines_under_keyword(['        COORD_FILE_NAME ./' + pdb_file], key_pdb_filename, new_inp_path)
                 replace_lines_under_keyword(['        CONN_FILE_NAME ./' + psf_file], key_psf_filename, new_inp_path)
@@ -114,10 +112,9 @@ def get_file(folder, extensions, preference=None):
         for file in files:
             if preference in file:
                 return file
-        print("ERROR: {folder} contains too many {extensions} files, skipping...")
+        print("ERROR:  {folder} contains too many {extensions} files, skipping...")
         return None
     return files[0]
-
 
 
 def get_files(folder, extensions):
@@ -134,25 +131,76 @@ def get_files(folder, extensions):
     return None
 
 
-def new_file_from_template(new_file, template):
-    pass
-def delete_lines_between_keywords(key1, key2, file):
-    pass
-def add_lines_under_keyword(lines, key, file): # from write_positions
-    pass
-def replace_lines_under_keyword(lines, key, file): # from write_cell
-    pass
-def replace_full_line_with_keyword(new_text, key, file):
-    pass
+def copy_as_newfile(template, new_file):
+    with open(template, 'r') as template_file:
+        template_content = template_file.readlines()
+    with open(new_file, 'w') as new_file:
+        new_file.writelines(template_content)
+    return
 
 
-def replace_keyword(key, new_text, file):
-    with open(file, 'r') as file:
+def delete_lines_between_keywords(key1, key2, filepath):
+    with open(filepath, 'r') as f:
+        lines = f.readlines()
+    keep = []
+    skip = False
+    for line in lines:
+        if key1 in line:
+            skip = True
+        if key2 in line:
+            skip = False
+        if not skip or key1 in line or key2 in line:
+            keep.append(line)
+    with open(filepath, 'w') as f:
+        f.writelines(keep)
+
+
+def add_lines_under_keyword(lines, keyword, filename):
+    with open(filename, 'r') as file:
+        document = file.readlines()
+    index = next((i for i, line in enumerate(document) if line.strip().startswith(keyword)), None)
+    if index is not None:
+        print("Writting COORD in {filename}")
+        for i, coord in enumerate(lines):
+            document.insert(index + 1 + i, "        " + coord + "\n")
+        with open(filename, 'w') as file:
+            file.writelines(document)
+    else:
+        print(f"ERROR:  Didn't find the '{keyword}' keyword in {filename}")
+
+
+def replace_lines_under_keyword(lines, keyword, filename):
+    with open(filename, 'r') as file:
+        document = file.readlines()
+    index = next((i for i, line in enumerate(document) if line.strip().startswith(keyword)), None)
+    if index is not None:
+        print("Writting COORD in " + filename)
+        for i, row in enumerate(lines):
+            document.insert(index + 1 + i, row + "\n")
+        with open(filename, 'w') as file:
+            file.writelines(document)
+    else:
+        print(f"ERROR:  Didn't find the '{keyword}' keyword in {filename}")
+
+
+def replace_full_line_with_keyword(new_text, keyword, filename):
+    with open(filename, 'r') as file:
         lines = file.readlines()
-    with open(file, 'w') as file:
+    with open(filename, 'w') as file:
         for line in lines:
-            if key in line:
-                line = line.replace(key, new_text)
+            if keyword in line:
+                line = new_text
+            file.write(line)
+    return
+
+
+def replace_str_on_keyword(new_text, keyword, filename):
+    with open(filename, 'r') as file:
+        lines = file.readlines()
+    with open(filename, 'w') as file:
+        for line in lines:
+            if keyword in line:
+                line = line.replace(keyword, new_text)
             file.write(line)
     return
 
@@ -169,7 +217,7 @@ def correct_psf(filename, fixing_psf):
         if found_key:
             print("Correcting {filename}...")
             for key, value in fixing_psf.items():
-                replace_keyword(key, value, filename)
+                replace_str_on_keyword(value, key, filename)
             break
     return
 
@@ -226,55 +274,7 @@ def get_coords(structure_file_path):
         return None
 
 
-
-
-
-
-"""
-
-# DEPRECATED
-## Read the template, insert the cell parameters, and save as new_file
-def write_cell(template, new_file, rows):
-
-    if not all(rows) and not len(rows) == 3:
-        error_file = os.path.dirname(new_file)
-        print("ERROR:  Didn't find the cell parameters in " + error_file)
-        return
-
-    with open(template, 'r') as template_file:
-        template_content = template_file.readlines()
-
-    for i, line in enumerate(template_content):
-        if line.strip() == key_cell:
-            template_content[i+1] = "        A   " + rows[0] + "\n"
-            template_content[i+2] = "        B   " + rows[1] + "\n"
-            template_content[i+3] = "        C   " + rows[2] + "\n"
-
-            print("Writting CELL in " + new_file)
-            with open(new_file, 'w') as new_file:
-                new_file.writelines(template_content)
-            return
-    print("ERROR:  Didn't find the {key_cell} keyword")
-    print("        in the '" + template + "' template.")
-
-
-## Open the already-written file and insert the coordinates
-def write_coords(new_file, coordinates):
-    with open(new_file, 'r') as file:
-        lines = file.readlines()
-    index = next((i for i, line in enumerate(lines) if line.strip().startswith(template_keyword_coord)), None)
-    if index is not None:
-        print("Writting COORD in " + new_file)
-        for i, coord in enumerate(coordinates):
-            lines.insert(index + 1 + i, "        " + coord + "\n")
-        with open(new_file, 'w') as file:
-            file.writelines(lines)
-    else:
-        print(f"ERROR: Didn't find the '{template_keyword_coord}' keyword in the input template.")
-
-
-""""
-
+###########################################################################
 
 
 if __name__ == "__main__":

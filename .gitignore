@@ -7,6 +7,8 @@
 /.venv/
 *data*
 *DATA*
+*backup*
+*BACKUP*
 
 
 # Byte-compiled / optimized / DLL files
