@@ -1,5 +1,4 @@
 import os
-#import glob
 try:
     from ase.io import read
 except:
@@ -47,7 +46,7 @@ fixing_psf = {
 
 
 def version():
-    return 'v.2023.12.11.1900'
+    return 'v.im.2023.12.11.1900'
 
 
 def name():
