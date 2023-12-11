@@ -2,29 +2,29 @@
 
 ############################################################
 # This script will sbatch the slurm files in each subfolder.
-# The slurm file must be named as follows:
-# (HINT: same as 'slurm_new_name' in 'slurmgod-create.sh')
-############################################################
-slurm_file="cp2k-slurm.sh"
 ############################################################
 
 current_dir=$(pwd)
 
 for dir in "$current_dir"/*; do
     if [ -d "$dir" ]; then
-        # If no input file is found, skip this directory
-        if [ ! -f "$dir"/$slurm_file ]; then
+        # Find the .sh file in the directory
+        slurm_path=$(find "$dir" -name '*.sh' -print -quit)
+
+        # If no .sh file is found, skip this directory
+        if [ -z "$slurm_path" ]; then
             continue
         fi
+
+        slurm_file=$(basename "$slurm_path")
         
-        job_name=$(basename "$dir")
-        echo "Launching from  $job_name"
+        folder_name=$(basename "$dir")
 
         cd "${dir}"
+        echo "Sbatching ${slurm_file} from ${folder_name}..."
         sbatch $slurm_file
         cd ..
 
     fi
 done
 echo "Done."
-

@@ -3,7 +3,7 @@ import glob
 try:
     from ase.io import read
 except:
-    print("ERROR:  ASE package not found, install it with 'pip install ase'")
+    print("  ERROR:  ASE package not found, install it with 'pip install ase'")
     exit()
 
 
@@ -39,7 +39,15 @@ fixing_psf = {
 ###########################################################################
 
 
+def version():
+    return 'input-maker.2023.12.11.1500'
+
+
 def cp2k():
+
+    only_one_sh_per_folder = True
+
+    welcome_cp2k()
 
     path = os.getcwd()
 
@@ -47,12 +55,12 @@ def cp2k():
     slurm_template = get_file(path, '.sh.template')
 
     if inp_template is None:
-        print("ERROR:  No '*.inp.template' input found in path, exiting...")
+        print("  ERROR:  No '*.inp.template' input found in path, exiting...")
         exit()
     new_inp_name = inp_template.replace('.template','')
 
     if slurm_template is None:
-        print("WARNING:  No '*.sh.template' slurm template found in path, you will have to run manually")
+        print("  WARNING:  No '*.sh.template' slurm template found in path, you will have to run manually")
         new_slurm_name = None
     else:
         new_slurm_name = slurm_template.replace('.template','')
@@ -60,9 +68,11 @@ def cp2k():
     for folder in os.listdir('.'):
         if os.path.isdir(folder):
 
-            structure_file = get_file(folder, structure_extensions, preferred_structure_file)
-            if structure_file is None:
+            structure_name = get_file(folder, structure_extensions, preferred_structure_file)
+            if structure_name is None:
                 continue
+            else:
+                structure_file = os.path.join(folder, structure_name)
 
             new_inp_path = os.path.join(folder, new_inp_name)
 
@@ -72,33 +82,49 @@ def cp2k():
             cell = get_cell(structure_file)
             if cell is None:
                 continue
+
+            newfile_from_template(new_inp_path, inp_template)
+
             replace_lines_under_keyword(cell, key_cell, new_inp_path)
+
+            if not psf_file: # 1st run
+                positions = get_coords(structure_file)
+                if positions is None:
+                    continue
+                delete_lines_between_keywords(key_topology_run, key_topology_end, new_inp_path)
+                add_lines_under_keyword(positions, key_coordinates, new_inp_path)
+                replace_lines_under_keyword(['    STEPS 1'], key_steps, new_inp_path)
+
+                print("  FIRST RUN:  Run CP2K to create the *.psf file, then run input-maker and CP2K again")
+                print("  Created " + new_inp_path)
+
+            else: # 2nd run
+                delete_lines_between_keywords(key_topology_init, key_topology_run, new_inp_path)
+                replace_lines_under_keyword(['        COORD_FILE_NAME ./' + pdb_file], key_pdb_filename, new_inp_path)
+                replace_lines_under_keyword(['        CONN_FILE_NAME ./' + psf_file], key_psf_filename, new_inp_path)
+
+                correct_psf(psf_file, fixing_psf)
+
+                print("  Created " + new_inp_path)
 
             if slurm_template:
                 new_slurm_path = os.path.join(folder, new_slurm_name)
                 copy_as_newfile(slurm_template, new_slurm_path)
                 replace_str_on_keyword(folder, key_jobname, new_slurm_path)
                 replace_str_on_keyword(new_inp_name.replace('.inp', ''), key_filename, new_slurm_path)
-
-            if not psf_file: # 1st run
-                positions = get_coords(structure_file)
-                if positions is None:
-                    continue
-                copy_as_newfile(inp_template, new_inp_path)
-                delete_lines_between_keywords(key_topology_run, key_topology_end, new_inp_path)
-                add_lines_under_keyword(positions, key_coordinates, new_inp_path)
-                replace_lines_under_keyword(['    STEPS 1'], key_steps, new_inp_path)
-
-                if slurm_template:
+                if not psf_file:
                     replace_full_line_with_keyword('#SBATCH --time=00:02:00', '#SBATCH --time=', new_slurm_path)
+                print("  Created " + new_slurm_path)
+            
+            if count_files(folder, '.sh') > 1:
+                only_one_sh_per_folder = False
 
-            else: # 2nd run
-                copy_as_newfile(inp_template, new_inp_path)
-                delete_lines_between_keywords(key_topology_init, key_topology_run, new_inp_path)
-                replace_lines_under_keyword(['        COORD_FILE_NAME ./' + pdb_file], key_pdb_filename, new_inp_path)
-                replace_lines_under_keyword(['        CONN_FILE_NAME ./' + psf_file], key_psf_filename, new_inp_path)
-
-                correct_psf(psf_file, fixing_psf)
+            print("")
+    
+    if only_one_sh_per_folder:
+        print("  Run all inputs at once with 'source sbatch-all.sh'\n")
+    else:
+        print("  WARNING:  More than one *.sh file per folder. You should sbatch' them one by one.\n")
 
 
 ###########################################################################
@@ -112,7 +138,7 @@ def get_file(folder, extensions, preference=None):
         for file in files:
             if preference in file:
                 return file
-        print("ERROR:  {folder} contains too many {extensions} files, skipping...")
+        print("  ERROR:  "+folder+" contains too many "+extensions+" files, skipping...")
         return None
     return files[0]
 
@@ -131,12 +157,28 @@ def get_files(folder, extensions):
     return None
 
 
+def count_files(folder, extension):
+    files = get_files(folder, extension)
+    if files is None:
+        return 0
+    return len(files)
+
+
 def copy_as_newfile(template, new_file):
     with open(template, 'r') as template_file:
         template_content = template_file.readlines()
     with open(new_file, 'w') as new_file:
         new_file.writelines(template_content)
     return
+
+
+def newfile_from_template(new_file, template):
+    copy_as_newfile(template, new_file)
+    with open(new_file, 'r') as file:
+        lines = file.readlines()
+    lines.insert(0, "! This file was created from '" + template + "' with " + version() + "\n")
+    with open(new_file, 'w') as file:
+        file.writelines(lines)
 
 
 def delete_lines_between_keywords(key1, key2, filepath):
@@ -160,13 +202,12 @@ def add_lines_under_keyword(lines, keyword, filename):
         document = file.readlines()
     index = next((i for i, line in enumerate(document) if line.strip().startswith(keyword)), None)
     if index is not None:
-        print("Writting COORD in {filename}")
         for i, coord in enumerate(lines):
             document.insert(index + 1 + i, "        " + coord + "\n")
         with open(filename, 'w') as file:
             file.writelines(document)
     else:
-        print(f"ERROR:  Didn't find the '{keyword}' keyword in {filename}")
+        print("  ERROR:  Didn't find the '"+keyword+"' keyword in "+filename)
 
 
 def replace_lines_under_keyword(lines, keyword, filename):
@@ -174,13 +215,13 @@ def replace_lines_under_keyword(lines, keyword, filename):
         document = file.readlines()
     index = next((i for i, line in enumerate(document) if line.strip().startswith(keyword)), None)
     if index is not None:
-        print("Writting COORD in " + filename)
         for i, row in enumerate(lines):
-            document.insert(index + 1 + i, row + "\n")
+            if index + 1 + i < len(document):
+                document[index + 1 + i] = row + "\n"
         with open(filename, 'w') as file:
             file.writelines(document)
     else:
-        print(f"ERROR:  Didn't find the '{keyword}' keyword in {filename}")
+        print("  ERROR:  Didn't find the '"+keyword+"' keyword in "+filename)
 
 
 def replace_full_line_with_keyword(new_text, keyword, filename):
@@ -189,7 +230,7 @@ def replace_full_line_with_keyword(new_text, keyword, filename):
     with open(filename, 'w') as file:
         for line in lines:
             if keyword in line:
-                line = new_text
+                line = new_text + '\n'
             file.write(line)
     return
 
@@ -215,7 +256,7 @@ def correct_psf(filename, fixing_psf):
                 found_key = True
                 break
         if found_key:
-            print("Correcting {filename}...")
+            print("Correcting "+filename+"...")
             for key, value in fixing_psf.items():
                 replace_str_on_keyword(value, key, filename)
             break
@@ -224,16 +265,20 @@ def correct_psf(filename, fixing_psf):
 
 def get_cell(structure_file):
     if old_inp_extension in structure_file:
+        method = "get_cell_from_inp() of " + version()
         rows = get_cell_from_inp(structure_file)
     else:
+        method = "get_cell_from_ase() of " + version()
         rows = get_cell_from_ase(structure_file)
     if rows == None or len(rows) != 3:
-        print("ERROR:  Didn't find the cell parameters in {structure_file}")
+        print("  ERROR:  Didn't find the cell parameters in "+structure_file)
         return None
-    cell = []
+
+    cell = [None, None, None, None]
     cell[0] = "        A   " + rows[0]
     cell[1] = "        B   " + rows[1]
     cell[2] = "        C   " + rows[2]
+    cell[3] = "        ! These cell parmeters were obtained from "+structure_file+" with the method "+method
     return cell
 
 
@@ -268,10 +313,27 @@ def get_coords(structure_file_path):
         symbols = structure.get_chemical_symbols()
         coords = structure.get_positions()
         coords_with_symbols = ["{} {:0.6f} {:0.6f} {:0.6f}".format(symbol, *coord) for symbol, coord in zip(symbols, coords)]
+        coords_with_symbols.append('! These coordinates were obtained from '+structure_file_path+' with the method get_coords() of '+version())
         return coords_with_symbols
     except:
-        print("ERROR:  Didn't find the cell positions in {structure_file}")
+        print("  ERROR:  Didn't find the cell positions in "+structure_file)
         return None
+
+
+def welcome_cp2k():
+    print("")
+    print("  ------------------------------------------------------------")
+    print("  Welcome to " + version() + " for CP2K inputs.")
+    print("  You should have already configured the '*.inp.template'")
+    print("  and '*.sh.template' files, else check the README.md.")
+    print("  ------------------------------------------------------------")
+    print("  This is free software, and you are welcome to")
+    print("  redistribute it under GNU General Public License.")
+    print("  If you find this code useful, a citation would be awesome :D")
+    print("  Pablo Gila-Herranz, “"+version()+"”, 2023.")
+    print("  https://github.com/pablogila/input-maker")
+    print("  ------------------------------------------------------------")
+    print("")
 
 
 ###########################################################################
