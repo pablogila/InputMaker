@@ -10,20 +10,20 @@ Currently supports CP2K inputs, but can be easily extended to other packages.
 
 ## Running inputmaker.py  
 
-`inputmaker.py` can be easily imported and run from the command line or from another script, to use its built-in functions. But you can also run the script with python (Windows), or python3 (Linux), with an optional flag to create a specific kind of input. Notice that the file structure should have been previously configured, as described in the section [File structure](#file-structure). To create CP2K inputs:  
-
-```bash
-python3 inputmaker.py -cp2k
-```
-
-To use the built-in functions from the command line, for example, to rename files with a specific extension in all subfolders:  
+`inputmaker.py` can be easily imported and run from the command line or from another script, to use its built-in functions. For example, to rename files with a specific extension in all subfolders:  
 
 ```python
 >>> import inputmaker as im
 >>> im.rename_files_on_subfolders('.psf_','.psf')
 ```
 
-Currently, only CP2K inputs are supported. However, the script can be easily expanded to create other types of inputs.
+You can also run the script with python (Windows), or python3 (Linux), with an optional flag to create a specific kind of input. Notice that the file structure should have been previously configured, as described in the section [File structure](#file-structure). To create CP2K inputs:  
+
+```bash
+python3 inputmaker.py -cp2k
+```
+
+Currently, only CP2K inputs are supported. However, the script can be easily expanded to create other types of inputs.  
 
 
 ## Built-in functions  
