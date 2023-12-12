@@ -16,6 +16,13 @@ Currently supports CP2K inputs, but can be easily extended to other packages.
 python3 inputmaker.py -cp2k
 ```
 
+To use the built-in functions from the command line, for example, to rename files with a specific extension in all subfolders:  
+
+```python
+>>> import inputmaker as im
+>>> im.rename_files_on_subfolders('.psf_','.psf')
+```
+
 Currently, only CP2K inputs are supported. However, the script can be easily expanded to create other types of inputs.
 
 
