@@ -8,11 +8,11 @@ except:
 
 
 def version():
-    return 'v.2023.12.12.1800'
+    return 'v.2023.12.12.1900'
 
 
 def name():
-    return 'inputmaker.py'
+    return 'InputMaker'
 
 
 def cp2k():
