@@ -1,4 +1,5 @@
 import os
+import sys
 try:
     from ase.io import read
 except:
@@ -6,60 +7,72 @@ except:
     exit()
 
 
-###########################################################################
-## Create CP2K input files from a template, easy piecy.
-###########################################################################
-# Template files, must be in the same folder as this script:
-inp_template_extension = '.inp.template'
-slurm_template_extension = '.sh.template'
-# Keywords on the inp template file:
-key_cell = '!<keyword-cell>'
-key_coordinates = '!<keyword-coordinates>'
-key_topology_init = '!<keyword-topology-init>'
-key_topology_run = '!<keyword-topology-run>'
-key_topology_end = '!<keyword-topology-end>'
-key_pdb_filename = '!<keyword-pdb-filename>' # '        COORD_FILE_NAME ./dumped.pdb'
-key_psf_filename = '!<keyword-psf-filename>' # '        CONN_FILE_NAME ./dumped.psf'
-key_steps = '!<keyword-steps>'
-# Keywords on the slurm template file:
-key_jobname = '<keyword-JOBNAME>'
-key_filename = '<keyword-FILENAME>'
-###########################################################################
-# Extension for an old input to be reused:
-old_inp_extension = '.inp.old'
-# Structural file extensions, ordered by priority:
-structure_extensions = [old_inp_extension, '.cif', '.cell', '.pdb']
-# If there are more than one structural file per folder, these ones will be preferred:
-preferred_structure_file = 'dumped.pdb'
-preferred_psf_file = 'dumped.psf'
-###########################################################################
-# The psf file may have to be fixed for some weird reason...
-fixing_psf = {
-    'H       H     -99.000000' : 'H       H       0.023000',
-    'C       C     -99.000000' : 'C       C       0.771000',
-    'N       N     -99.000000' : 'N       N      -1.100000',
-    'Pb      Pb    -99.000000' : 'Pb      Pb      2.030000',
-    'I       I     -99.000000' : 'I       I      -1.130000',
-    'D       D     -99.000000' : 'D       D       0.540000',
-}
-###########################################################################
-
-
 def version():
-    return 'v.im.2023.12.11.1900'
+    return 'v.2023.12.12.1800'
 
 
 def name():
-    return 'input-maker.py'
+    return 'inputmaker.py'
 
 
 def cp2k():
+    ###########################################################################
+    ## Create CP2K input files from a template, easy piecy.
+    ###########################################################################
+    # Template files, must be in the same folder as this script:
+    inp_template_extension = '.inp.template'
+    slurm_template_extension = '.sh.template'
+    # Keywords on the inp template file:
+    key_cell = '!<keyword-cell>'
+    key_coordinates = '!<keyword-coordinates>'
+    key_topology_init = '!<keyword-topology-init>'
+    key_topology_run = '!<keyword-topology-run>'
+    key_topology_end = '!<keyword-topology-end>'
+    key_pdb_filename = '!<keyword-pdb-filename>' # '        COORD_FILE_NAME ./dumped.pdb'
+    key_psf_filename = '!<keyword-psf-filename>' # '        CONN_FILE_NAME ./dumped.psf'
+    key_steps = '!<keyword-steps>'
+    # Keywords on the slurm template file:
+    key_jobname = '<keyword-JOBNAME>'
+    key_filename = '<keyword-FILENAME>'
+    ###########################################################################
+    # Extension for an old input to be reused:
+    old_inp_extension = '.inp.old'
+    # Structural file extensions, ordered by priority:
+    structure_extensions = [old_inp_extension, '.cif', '.cell', '.pdb']
+    # If there are more than one structural file per folder, these ones will be preferred:
+    preferred_structure_file = 'dumped.pdb'
+    preferred_psf_file = 'dumped.psf'
+    ###########################################################################
+    # The psf file may have to be fixed for some weird reason...
+    # https://dx.doi.org/10.1088/1361-648X/29/4/043001 (mattoni2016)
+    # https://doi.org/10.1021/acs.jpcc.5b04283 (mattoni2015)
+    fixing_psf = {
+        'H       H     -99.000000' : 'H       H       0.023000',
+        'C       C     -99.000000' : 'C       C       0.771000',
+        'N       N     -99.000000' : 'N       N      -1.100000',
+        'Pb      Pb    -99.000000' : 'Pb      Pb      2.030000',
+        'I       I     -99.000000' : 'I       I      -1.130000',
+        'D       D     -99.000000' : 'D       D       0.540000',
+    }
+    ###########################################################################
 
     # Initialize the warning flags:
     only_one_slurm_per_folder = True
     is_first_run_needed = False
 
-    welcome_cp2k()
+    print("")
+    print("  -------------------------------------------------------------")
+    print("  Welcome to " + name() + " " + version() + " for CP2K inputs.")
+    print("  You should have already configured the '*" + inp_template_extension + "'")
+    print("  and '*" + slurm_template_extension + "' files, else check the README.md.")
+    print("  -------------------------------------------------------------")
+    print("  This is free software, and you are welcome to")
+    print("  redistribute it under GNU General Public License.")
+    print("  If you find this code useful, a citation would be awesome :D")
+    print("  Pablo Gila-Herranz, “" + name() + "” " + version() + ", 2023.")
+    print("  https://github.com/pablogila/InputMaker")
+    print("  -------------------------------------------------------------")
+    print("")
 
     path = os.getcwd()
     inp_template = get_file(path, inp_template_extension)
@@ -115,7 +128,7 @@ def cp2k():
                 replace_lines_under_keyword(['        COORD_FILE_NAME ./' + pdb_file], key_pdb_filename, new_inp_path)
                 replace_lines_under_keyword(['        CONN_FILE_NAME ./' + psf_file], key_psf_filename, new_inp_path)
 
-                correct_psf(os.path.join(folder, psf_file), fixing_psf)
+                correct_file_with_dict(os.path.join(folder, psf_file), fixing_psf) # Fix the psf file if needed
 
                 print("  Created " + new_inp_path)
 
@@ -137,13 +150,15 @@ def cp2k():
     if is_first_run_needed:
         print("  WARNING: Running without a *.psf file is an experimental feature, it may not work...")
     if only_one_slurm_per_folder and slurm_template:
-        print("  Run all inputs at once with 'source sbatch-all.sh'\n")
+        print("  Run all inputs at once with 'source sbatch_all.sh'\n")
     elif not slurm_template:
         print("  WARNING: No *" + slurm_template_extension + " slurm template found in path, you will have to create slurms manually!\n")
     else:
         print("  WARNING: More than one *.sh file per folder. You should sbatch' them one by one.\n")
 
 
+###########################################################################
+#    COMMON FUNCTIONS
 ###########################################################################
 
 
@@ -263,25 +278,25 @@ def replace_str_on_keyword(new_text, keyword, filename):
     return
 
 
-def correct_psf(filename, fixing_psf):
+def correct_file_with_dict(filename, fixing_dict):
     found_key = False
     with open(filename, 'r') as file:
         lines = file.readlines()
     for line in lines:
-        for key in fixing_psf.keys():
+        for key in fixing_dict.keys():
             if key in line:
                 found_key = True
                 break
         if found_key:
             print("  Correcting " + filename + "...")
-            for key, value in fixing_psf.items():
+            for key, value in fixing_dict.items():
                 replace_str_on_keyword(value, key, filename)
             break
     return
 
 
-def get_cell(structure_file):
-    if old_inp_extension in structure_file:
+def get_cell(structure_file, alternate_extension = '.inp.old'):
+    if alternate_extension in structure_file:
         method = "get_cell_from_inp() of " + name() + " " + version()
         rows = get_cell_from_inp(structure_file)
     else:
@@ -337,25 +352,20 @@ def get_coords(structure_file_path):
         return None
 
 
-def welcome_cp2k():
-    print("")
-    print("  -------------------------------------------------------------")
-    print("  Welcome to " + name() + " " + version() + " for CP2K inputs.")
-    print("  You should have already configured the '*" + inp_template_extension + "'")
-    print("  and '*" + slurm_template_extension + "' files, else check the README.md.")
-    print("  -------------------------------------------------------------")
-    print("  This is free software, and you are welcome to")
-    print("  redistribute it under GNU General Public License.")
-    print("  If you find this code useful, a citation would be awesome :D")
-    print("  Pablo Gila-Herranz, “" + name() + "” " + version() + ", 2023.")
-    print("  https://github.com/pablogila/input-maker")
-    print("  -------------------------------------------------------------")
-    print("")
+def rename_files_on_subfolders(old_extension, new_extension):
+    for folder in os.listdir('.'):
+        if os.path.isdir(folder):
+            for file in os.listdir(folder):
+                if file.endswith(old_extension):
+                    old_file = os.path.join(folder, file)
+                    new_file = os.path.join(folder, file.replace(old_extension, new_extension))
+                    os.rename(old_file, new_file)
 
 
 ###########################################################################
 
 
 if __name__ == "__main__":
-    cp2k()
+    if '-cp2k' in sys.argv or '-CP2K' in sys.argv or 'cp2k' in sys.argv or 'CP2K' in sys.argv:
+        cp2k()
 
