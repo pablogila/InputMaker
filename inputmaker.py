@@ -3,30 +3,62 @@ import sys
 try:
     from ase.io import read
 except:
-    print("  ERROR: ASE package not found, install it with 'pip install ase'")
-    exit()
+    print("  WARNING: ASE package not found, install it with 'pip install ase'")
 
 
 def version():
-    return 'v.2023.12.12.1900'
+    return 'v.2024.02.22.1600'
 
 
 def name():
     return 'InputMaker'
 
 
-## UNDER DEVELOPMENT
 def castep(supercell):
-    # supercell must be None, or "[k,l,m]" string
-    try:
-        if supercell == None:
-            convert_command = f".\\cif2cell {filename} -p castep"
-        else:
-            convert_command = f".\\cif2cell {filename} -p castep --supercell={supercell}"
-            process = subprocess.Popen(['powershell', '-Command', convert_command])
-            process.communicate()
-    except:
-        print("ERROR: 'cif2cell' may not be installed. Aborting...")
+    print("")
+    print("  -------------------------------------------------------------")
+    print("  Welcome to " + name() + " " + version() + " for CASTEP inputs.")
+    print("  -------------------------------------------------------------")
+    print("  This is free software, and you are welcome to")
+    print("  redistribute it under GNU General Public License.")
+    print("  If you find this code useful, a citation would be awesome :D")
+    print("  Pablo Gila-Herranz, “" + name() + "” " + version() + ", 2024.")
+    print("  https://github.com/pablogila/InputMaker")
+    print("  -------------------------------------------------------------")
+    print("")
+
+    if supercell == None:
+        supercell_call = ""
+
+    else:
+        if not supercell.startswith('[') or not supercell.endswith(']'):
+            print("  ERROR: supercell argument must be given as [k,l,m]. Try again...\n")
+            exit()
+        supercell_call = " --supercell=" + supercell
+        
+    path = os.getcwd()
+    cif_files = get_files(path, '.cif')
+
+    if cif_files is not None:
+        for cif_file in cif_files:
+            output_name = cif_file.replace('.cif', '.cell')
+            command = 'cif2cell ' + cif_file + ' -p castep ' + supercell_call + ' -o ' + output_name
+            os.system(command)
+            #command = ['cif2cell', cif_file, '-p', 'castep', supercell_call, '-o', output_name]
+            #subprocess.call(command)
+            print("  " + command)
+    else:
+        for folder in os.listdir('.'):
+            if os.path.isdir(folder):
+                cif_file = get_file(folder, ".cif")
+                output_name = cif_file.replace('.cif', '.cell')
+                command = 'cif2cell ' + folder + "/" + cif_file + ' -p castep ' + supercell_call + ' -o ' + folder + "/" + output_name
+                os.system(command)
+                #command = ['cif2cell', cif_file, '-p', 'castep', supercell_call, '-o', output_name]
+                #subprocess.call(command)
+                print("  " + command)
+    print("")
+    print("  Done!\n")
 
 
 def cp2k():
@@ -83,7 +115,7 @@ def cp2k():
     print("  This is free software, and you are welcome to")
     print("  redistribute it under GNU General Public License.")
     print("  If you find this code useful, a citation would be awesome :D")
-    print("  Pablo Gila-Herranz, “" + name() + "” " + version() + ", 2023.")
+    print("  Pablo Gila-Herranz, “" + name() + "” " + version() + ", 2024.")
     print("  https://github.com/pablogila/InputMaker")
     print("  -------------------------------------------------------------")
     print("")
@@ -362,7 +394,7 @@ def get_coords(structure_file_path):
         coords_with_symbols.append("! These positions were obtained from " + structure_file_path + " with the method get_coords() of " + name() + " " + version())
         return coords_with_symbols
     except:
-        print("  ERROR: Didn't find the cell positions in " + structure_file)
+        print("  ERROR: Didn't find the cell positions in " + structure_file_path)
         return None
 
 
@@ -385,10 +417,10 @@ if __name__ == "__main__":
 
     ## CASTEP inputs still under development...
     elif '-castep' in sys.argv or '-CASTEP' in sys.argv or 'castep' in sys.argv or 'CASTEP' in sys.argv:
-        if '--supercell=*' in sys.argv or '-supercell=*' in sys.argv or 'supercell=*' in sys.argv or '--SUPERCELL=*' in sys.argv or '-SUPERCELL=*' in sys.argv or 'SUPERCELL=*' in sys.argv:
-            ####### We must read a sring as "[k,l,m]" #### WORK NEEDED HERE
-            supercell = None
-            castep(supercell)
-        else:
-            castep(None)
+        supercell = None
+        for arg in sys.argv:
+            if arg.startswith(('--supercell=', '-supercell=', 'supercell=', '--SUPERCELL=', '-SUPERCELL=', 'SUPERCELL=')):
+                supercell = arg.split('=')[1]
+                break
+        castep(supercell)
 

@@ -5,7 +5,8 @@ Currently supports CP2K inputs, but can be easily extended to other packages.
 
 ### Dependencies  
 - Python 3.X  
-- ASE package. To install it, run `pip install ase`.  
+- ASE package (for CP2K inputs). To install it, run `pip install ase`.  
+- cif2cell package (for CASTEP inputs). To install it, run `pip install cif2cell`. Warning: cif2cell may not work in Windows.  
 
 
 ## Running inputmaker.py  
@@ -17,13 +18,21 @@ Currently supports CP2K inputs, but can be easily extended to other packages.
 >>> im.rename_files_on_subfolders('.psf_','.psf')
 ```
 
-You can also run the script with python (Windows), or python3 (Linux), with an optional flag to create a specific kind of input. Notice that the file structure should have been previously configured, as described in the section [File structure](#file-structure). To create CP2K inputs:  
+You can also run the script with python (Windows), or python3 (Linux), with a flag to specify the kind of input, currently supporting CP2K and CASTEP.  
+
+To mass-create `*.cell` [CASTEP inputs](#castep-inputs), as well as simultaneously creating a supercell, e.g. of 3x2x3 size, run the following:  
+
+```bash
+python3 inputmaker.py -castep -supercell=[3,2,3]
+```
+
+To create [CP2K inputs](#cp2k-inputs), the file structure should have been previously configured, as described in the section [File structure](#file-structure). Then run:  
 
 ```bash
 python3 inputmaker.py -cp2k
 ```
 
-Currently, only CP2K inputs are supported. However, the script can be easily expanded to create other types of inputs.  
+More details 
 
 
 ## Built-in functions  
@@ -62,6 +71,16 @@ A function named `cp2k()` is already predefined to create CP2K inputs. However, 
 - `get_coords(structure_file_path)`: Retrieves atomic positions from a structure file, using ASE.  
 
 - `rename_files_on_subfolders(old_extension, new_extension)`: Renames files with a specific old extension to a new extension in all subfolders. It is usefull to import the script and use this function on the command line, to prepare the inputs. Usage: rename_files_on_subfolders('.inp', '.inp.old')
+
+
+## CASTEP inputs
+
+CASTEP `*.cell` files can be mass-produced by running the script with the `-castep` flag. The script will then search for all `*.cif` files on the current path; if none are found, then it will check each subfolder.  
+The script will also create a supercell, if the `-supercell=[k,l,m]` flag is provided, replacing `k`, `l`, and `m` with the desired supercell size (e.g. [3,2,3], etc.):  
+
+```bash
+python3 inputmaker.py -castep -supercell=[k,l,m]
+```
 
 
 ## CP2K inputs
