@@ -14,7 +14,8 @@ def name():
     return 'InputMaker'
 
 
-def castep(supercell):
+def castep(supercell, custom_out_folder = None):
+
     print("")
     print("  -------------------------------------------------------------")
     print("  Welcome to " + name() + " " + version() + " for CASTEP inputs.")
@@ -39,10 +40,17 @@ def castep(supercell):
     path = os.getcwd()
     cif_files = get_files(path, '.cif')
 
+    if custom_out_folder == None:
+        out_folder = ""
+    else:
+        if not os.path.exists(custom_out_folder):
+            os.makedirs(custom_out_folder)
+        out_folder = custom_out_folder + "/"
+
     if cif_files is not None:
         for cif_file in cif_files:
             output_name = cif_file.replace('.cif', '.cell')
-            command = 'cif2cell ' + cif_file + ' -p castep ' + supercell_call + ' -o ' + output_name
+            command = 'cif2cell ' + cif_file + ' -p castep ' + supercell_call + ' -o ' + out_folder + output_name
             os.system(command)
             #command = ['cif2cell', cif_file, '-p', 'castep', supercell_call, '-o', output_name]
             #subprocess.call(command)
@@ -50,9 +58,13 @@ def castep(supercell):
     else:
         for folder in os.listdir('.'):
             if os.path.isdir(folder):
+                if custom_out_folder == None:
+                    out_folder = folder + "/"
                 cif_file = get_file(folder, ".cif")
+                if cif_file is None:
+                    continue
                 output_name = cif_file.replace('.cif', '.cell')
-                command = 'cif2cell ' + folder + "/" + cif_file + ' -p castep ' + supercell_call + ' -o ' + folder + "/" + output_name
+                command = 'cif2cell ' + folder + "/" + cif_file + ' -p castep ' + supercell_call + ' -o ' + out_folder + output_name
                 os.system(command)
                 #command = ['cif2cell', cif_file, '-p', 'castep', supercell_call, '-o', output_name]
                 #subprocess.call(command)
@@ -412,15 +424,22 @@ def rename_files_on_subfolders(old_extension, new_extension):
 
 
 if __name__ == "__main__":
+
     if '-cp2k' in sys.argv or '-CP2K' in sys.argv or 'cp2k' in sys.argv or 'CP2K' in sys.argv:
         cp2k()
 
-    ## CASTEP inputs still under development...
     elif '-castep' in sys.argv or '-CASTEP' in sys.argv or 'castep' in sys.argv or 'CASTEP' in sys.argv:
+
+        if 'out' in sys.argv or 'OUT' in sys.argv or '-out' in sys.argv or '-OUT' in sys.argv or '--out' in sys.argv or '--OUT' in sys.argv:
+            out_folder = 'out'
+        else:
+            out_folder = None
+
         supercell = None
         for arg in sys.argv:
             if arg.startswith(('--supercell=', '-supercell=', 'supercell=', '--SUPERCELL=', '-SUPERCELL=', 'SUPERCELL=')):
                 supercell = arg.split('=')[1]
                 break
-        castep(supercell)
+
+        castep(supercell, out_folder)
 

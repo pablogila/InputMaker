@@ -76,10 +76,13 @@ A function named `cp2k()` is already predefined to create CP2K inputs. However, 
 ## CASTEP inputs
 
 CASTEP `*.cell` files can be mass-produced by running the script with the `-castep` flag. The script will then search for all `*.cif` files on the current path; if none are found, then it will check each subfolder.  
-The script will also create a supercell, if the `-supercell=[k,l,m]` flag is provided, replacing `k`, `l`, and `m` with the desired supercell size (e.g. [3,2,3], etc.):  
+The script will also create a supercell, if the `-supercell=[k,l,m]` flag is provided, replacing `k`, `l`, and `m` with the desired supercell size (e.g. [3,2,3], etc).  
+The outputs are placed in the same folder as the `*.cif` files, unless the `-out` flag is used, in which case the outputs are placed in a `/out/` folder.  
+
+To create the `*.cell` files:  
 
 ```bash
-python3 inputmaker.py -castep -supercell=[k,l,m]
+python3 inputmaker.py -castep -supercell=[k,l,m] -out
 ```
 
 
