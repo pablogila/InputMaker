@@ -15,6 +15,20 @@ def name():
     return 'InputMaker'
 
 
+## UNDER DEVELOPMENT
+def castep(supercell):
+    # supercell must be None, or "[k,l,m]" string
+    try:
+        if supercell == None:
+            convert_command = f".\\cif2cell {filename} -p castep"
+        else:
+            convert_command = f".\\cif2cell {filename} -p castep --supercell={supercell}"
+            process = subprocess.Popen(['powershell', '-Command', convert_command])
+            process.communicate()
+    except:
+        print("ERROR: 'cif2cell' may not be installed. Aborting...")
+
+
 def cp2k():
     ###########################################################################
     ## Create CP2K input files from a template, easy piecy.
@@ -368,4 +382,13 @@ def rename_files_on_subfolders(old_extension, new_extension):
 if __name__ == "__main__":
     if '-cp2k' in sys.argv or '-CP2K' in sys.argv or 'cp2k' in sys.argv or 'CP2K' in sys.argv:
         cp2k()
+
+    ## CASTEP inputs still under development...
+    elif '-castep' in sys.argv or '-CASTEP' in sys.argv or 'castep' in sys.argv or 'CASTEP' in sys.argv:
+        if '--supercell=*' in sys.argv or '-supercell=*' in sys.argv or 'supercell=*' in sys.argv or '--SUPERCELL=*' in sys.argv or '-SUPERCELL=*' in sys.argv or 'SUPERCELL=*' in sys.argv:
+            ####### We must read a sring as "[k,l,m]" #### WORK NEEDED HERE
+            supercell = None
+            castep(supercell)
+        else:
+            castep(None)
 
