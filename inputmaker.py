@@ -7,7 +7,7 @@ except:
 
 
 def version():
-    return 'v.2024.02.22.1600'
+    return 'v.2024.02.22.1900'
 
 
 def name():
@@ -418,6 +418,22 @@ def rename_files_on_subfolders(old_extension, new_extension):
                     old_file = os.path.join(folder, file)
                     new_file = os.path.join(folder, file.replace(old_extension, new_extension))
                     os.rename(old_file, new_file)
+
+
+def copy_files_to_subfolders(extension, words_to_delete = []):
+    path = os.getcwd()
+    old_files = get_files(path, extension)
+    if old_files is None:
+        print("  WARNING: no " + extension + " files found in path, skipping...\n")
+        return
+    for old_file in old_files:
+        new_file = old_file
+        for word in words_to_delete:
+            new_file = new_file.replace(word, '')
+        folder = new_file.replace(extension, '')
+        os.makedirs(folder)
+        new_file_path = folder + '/' + new_file
+        copy_as_newfile(old_file, new_file_path)
 
 
 ###########################################################################

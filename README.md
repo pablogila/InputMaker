@@ -70,7 +70,9 @@ A function named `cp2k()` is already predefined to create CP2K inputs. However, 
 
 - `get_coords(structure_file_path)`: Retrieves atomic positions from a structure file, using ASE.  
 
-- `rename_files_on_subfolders(old_extension, new_extension)`: Renames files with a specific old extension to a new extension in all subfolders. It is usefull to import the script and use this function on the command line, to prepare the inputs. Usage: rename_files_on_subfolders('.inp', '.inp.old')
+- `rename_files_on_subfolders(old_extension, new_extension)`: Renames files with a specific old extension to a new extension in all subfolders. It is usefull to import the script and use this function on the command line, to prepare the inputs. Usage: rename_files_on_subfolders('.inp', '.inp.old')  
+
+- `copy_files_to_subfolders(extension, words_to_delete=[])`: Copies files with a specific extension to new subfolders. The subfolders are named after the original files, with certain words removed.  
 
 
 ## CASTEP inputs
