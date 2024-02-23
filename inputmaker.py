@@ -7,18 +7,19 @@ except:
 
 
 def version():
-    return 'v.2024.02.22.1900'
+    return 'v.2024.02.23.1100'
 
 
 def name():
     return 'InputMaker'
 
 
-def castep(supercell, custom_out_folder = None):
+def castep(supercell = None, custom_out_folder = None, move_to_subfolders = False):
 
     print("")
     print("  -------------------------------------------------------------")
     print("  Welcome to " + name() + " " + version() + " for CASTEP inputs.")
+    print("  You should already have cif2cell installed on your system.")
     print("  -------------------------------------------------------------")
     print("  This is free software, and you are welcome to")
     print("  redistribute it under GNU General Public License.")
@@ -47,14 +48,18 @@ def castep(supercell, custom_out_folder = None):
             os.makedirs(custom_out_folder)
         out_folder = custom_out_folder + "/"
 
+    # If CIF files are in the main folder:
     if cif_files is not None:
         for cif_file in cif_files:
             output_name = cif_file.replace('.cif', '.cell')
             command = 'cif2cell ' + cif_file + ' -p castep ' + supercell_call + ' -o ' + out_folder + output_name
             os.system(command)
-            #command = ['cif2cell', cif_file, '-p', 'castep', supercell_call, '-o', output_name]
-            #subprocess.call(command)
             print("  " + command)
+        if move_to_subfolders:
+            copy_files_to_subfolders('.cell')
+            print("  Copied all CASTEP inputs to individual subfolders.")
+
+    # If CIF files are in subfolders:
     else:
         for folder in os.listdir('.'):
             if os.path.isdir(folder):
@@ -66,8 +71,6 @@ def castep(supercell, custom_out_folder = None):
                 output_name = cif_file.replace('.cif', '.cell')
                 command = 'cif2cell ' + folder + "/" + cif_file + ' -p castep ' + supercell_call + ' -o ' + out_folder + output_name
                 os.system(command)
-                #command = ['cif2cell', cif_file, '-p', 'castep', supercell_call, '-o', output_name]
-                #subprocess.call(command)
                 print("  " + command)
     print("")
     print("  Done!\n")
@@ -438,24 +441,58 @@ def copy_files_to_subfolders(extension, words_to_delete = []):
 
 ###########################################################################
 
+cp2k_args = ['cp2k', 'CP2K', '-cp2k', '-CP2K', '--cp2k', '--CP2K']
+castep_args = ['castep', 'CASTEP', '-castep', '-CASTEP', '--castep', '--CASTEP']
+help_args = ['h', 'H', '-h', '-H', 'help', 'HELP', '-help', '-HELP', '--help', '--HELP']
+supercell_args = ['supercell=', 'SUPERCELL=', '-supercell=', '-SUPERCELL=', '--supercell=', '--SUPERCELL=']
+out_folder_args = ['out', 'OUT', '-out', '-OUT', '--out', '--OUT']
+subfolder_args = ['sub', 'SUB', '-sub', '-SUB', '--sub', '--SUB']
 
 if __name__ == "__main__":
 
-    if '-cp2k' in sys.argv or '-CP2K' in sys.argv or 'cp2k' in sys.argv or 'CP2K' in sys.argv:
+    # Help message
+    if any(arg in sys.argv for arg in help_args):
+        print("  INPUTMAKER BASIC COMMANDS")
+        print("  Usage: python inputmaker.py [options]")
+        print("  Options:")
+        print("    -castep      Create CASTEP inputs.")
+        print("    -sub         Move CASTEP inputs to individual subfolders.")
+        print("    -out         Move all CASTEP inputs inside an /out/ folder.")
+        print("    -supercell=[k,l,m]  Create CASTEP inputs with a supercell.")
+        print("    -cp2k        Create CP2K inputs from a template.")
+        print("  Examples:")
+        print("    python3 inputmaker.py -cp2k")
+        print("    python3 inputmaker.py -castep -sub -supercell=[2,2,2]")
+        print("    python3 inputmaker.py -castep -out --supercell=[3,2,3]")
+        print("  More info at https://github.com/pablogila/InputMaker")
+
+    # CP2K inputs
+    if any(arg in cp2k_args for arg in sys.argv):
         cp2k()
 
-    elif '-castep' in sys.argv or '-CASTEP' in sys.argv or 'castep' in sys.argv or 'CASTEP' in sys.argv:
-
-        if 'out' in sys.argv or 'OUT' in sys.argv or '-out' in sys.argv or '-OUT' in sys.argv or '--out' in sys.argv or '--OUT' in sys.argv:
+    # CASTEP inputs
+    if any(arg in castep_args for arg in sys.argv):
+        # CASTEP inputs inside an /out/ folder
+        if any(arg in out_folder_args for arg in sys.argv):
             out_folder = 'out'
         else:
             out_folder = None
-
+        # CASTEP inputs on subfolders
+        if any(arg in subfolder_args for arg in sys.argv):
+            move_to_subfolders = True
+        else:
+            move_to_subfolders = False
+        # Supercell for CASTEP calculations
         supercell = None
+        found = False
         for arg in sys.argv:
-            if arg.startswith(('--supercell=', '-supercell=', 'supercell=', '--SUPERCELL=', '-SUPERCELL=', 'SUPERCELL=')):
-                supercell = arg.split('=')[1]
+            if found:
                 break
+            for i in supercell_args:
+                if arg.startswith(i):
+                    supercell = arg.split('=')[1]
+                    found = True
+                    break
 
-        castep(supercell, out_folder)
+        castep(supercell, out_folder, move_to_subfolders)
 
