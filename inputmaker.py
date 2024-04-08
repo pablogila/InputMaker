@@ -473,15 +473,13 @@ if __name__ == "__main__":
     # CASTEP inputs
     if any(arg in castep_args for arg in sys.argv):
         # CASTEP inputs inside an /out/ folder
+        out_folder = None
         if any(arg in out_folder_args for arg in sys.argv):
             out_folder = 'out'
-        else:
-            out_folder = None
         # CASTEP inputs on subfolders
+        move_to_subfolders = False
         if any(arg in subfolder_args for arg in sys.argv):
             move_to_subfolders = True
-        else:
-            move_to_subfolders = False
         # Supercell for CASTEP calculations
         supercell = None
         found = False
