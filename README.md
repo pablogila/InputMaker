@@ -14,8 +14,8 @@ Currently supports CP2K inputs, but can be easily extended to other packages.
 `inputmaker.py` can be easily imported and run from the command line or from another script, to use its built-in functions. For example, to rename files with a specific extension in all subfolders:  
 
 ```python
->>> import inputmaker as im
->>> im.rename_files_on_subfolders('.psf_','.psf')
+import inputmaker as im
+im.rename_files_on_subfolders('.psf_','.psf')
 ```
 
 You can also run the script with python (Windows), or python3 (Linux), with a flag to specify the kind of input, currently supporting CP2K and CASTEP.  
@@ -52,7 +52,7 @@ A function named `cp2k()` is already predefined to create CP2K inputs. However, 
 
 - `delete_lines_between_keywords(key1, key2, filepath)`: Deletes lines between two keywords in a file. Usage: delete_lines_between_keywords('#key_start', '#key_end', 'file.txt').  
 
-- `add_lines_under_keyword(lines, keyword, filename)`: Adds lines under a specific keyword in a file. Usage: add_lines_under_keyword(['line1', 'line2'], 'keyword', 'file.txt').  
+- `insert_lines_under_keyword(lines, keyword, filename)`: Adds lines under a specific keyword in a file. Usage: insert_lines_under_keyword(['line1', 'line2'], 'keyword', 'file.txt').  
 
 - `replace_lines_under_keyword(lines, keyword, filename)`: Replaces lines under a specific keyword in a file. Usage: replace_lines_under_keyword(['new line1', 'new line2'], 'keyword', 'file.txt').  
 
