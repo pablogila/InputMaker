@@ -179,13 +179,13 @@ def insert_lines_under_keyword(lines:str, keyword:str, file:str):
         document = file.readlines()
     index = next((i for i, line in enumerate(document) if line.strip().startswith(keyword)), None)
     if index is not None:
-        for i, coord in enumerate(lines):
-            document.insert(index + 1 + i, "        " + coord + "\n")
+        for i, line in enumerate(lines):
+            document.insert(index + 1 + i, line + "\n")
         with open(file, 'w') as file:
             file.writelines(document)
     else:
         raise ValueError("Didn't find the '" + keyword + "' keyword in " + file)
-        #print("  ERROR:  Didn't find the '" + keyword + "' keyword in " + file)
+    return
 
 
 def replace_lines_under_keyword(lines:str, keyword:str, file:str):
@@ -204,7 +204,7 @@ def replace_lines_under_keyword(lines:str, keyword:str, file:str):
             file.writelines(document)
     else:
         raise ValueError("Didn't find the '" + keyword + "' keyword in " + file)
-        #print("  ERROR: Didn't find the '" + keyword + "' keyword in " + filename)
+    return
 
 
 def delete_lines_under_keyword(keyword:str, file:str):
@@ -229,13 +229,14 @@ def delete_lines_between_keywords(key1:str, key2:str, file:str):
             skip = True
         if key2 in line:
             skip = False
-        if not skip or key1 in line or key2 in line:
+        if not skip or key1 in line:
             keep.append(line)
     with open(file, 'w') as f:
         f.writelines(keep)
+    return
 
 
-def correct_file_with_dict(file, fixing_dict):
+def correct_file_with_dict(file, fixing_dict:dict):
     '''
     Corrects the given `file` using the `fixing_dict` dictionary.
     '''
