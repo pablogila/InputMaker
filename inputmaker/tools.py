@@ -1,6 +1,6 @@
 '''
 # Description
-This module contains functions to read, write and extract information from different files.
+Common functions to read, write and extract information from different files.
 
 # Index
 - `welcome()`
@@ -12,6 +12,7 @@ This module contains functions to read, write and extract information from diffe
 - `delete_lines_between_keywords()`
 - `insert_lines_under_keyword()`
 - `replace_lines_under_keyword()`
+- `replace_lines_between_keywords()`
 - `replace_full_line_with_keyword()`
 - `replace_str_on_keyword()`
 - `correct_file_with_dict()`
@@ -24,6 +25,7 @@ This module contains functions to read, write and extract information from diffe
 
 
 version = 'v0.2.0'
+'''Package version, using semantic versioning to indicate breaking changes, as in v<MAJOR>.<MINOR>.<PATCH>.'''
 
 
 def welcome(submodule_str=''):
@@ -168,6 +170,12 @@ def replace_lines_under_keyword(lines=str, keyword=str, file=str):
     else:
         raise ValueError("Didn't find the '" + keyword + "' keyword in " + file)
         #print("  ERROR: Didn't find the '" + keyword + "' keyword in " + filename)
+
+
+def replace_lines_between_keywords(text=str, key1=str, key2=str, file=str)
+    '''TO-CHECK'''
+    delete_lines_between_keywords(key1, key2, file)
+    insert_lines_under_keyword(text, key1, file)
 
 
 def replace_full_line_with_keyword(text=str, keyword=str, file=str):
