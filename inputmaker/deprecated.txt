@@ -1,0 +1,19 @@
+
+# Deprecated at v0.3.0
+def get_file_with_extension(folder, extensions, preference=None):
+    '''
+    Returns the file with one of the the specified `extensions`
+    (string or list with strings) in the given `folder`.
+    If there is more than one file with the extension,
+    it returns the one containing the `preference` string.
+    '''
+    files = get_files_from_folder(folder, extensions)
+    if files is None:
+        return None
+    if len(files) > 1:
+        for file in files:
+            if preference in file:
+                return file
+        raise ValueError(folder + ' contains too many ' + extensions + ' files')
+        #print("  ERROR: " + folder + " contains too many " + extensions + " files, skipping...")
+    return files[0]

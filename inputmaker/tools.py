@@ -1,11 +1,10 @@
 '''
 # Description
-Common functions to read, write and extract information from different files.
+Common functions to manipulate input files with custom keywords.
 
 # Index
-- `get_file_with_extension()`
-- `get_files_with_extension()`
-- `count_files_with_extension()`
+- `get_file()`
+- `get_files_from_folder()`
 - `rename_files()`
 - `rename_files_on_subfolders()`
 - `copy_files_to_subfolders()`
@@ -24,51 +23,47 @@ Common functions to read, write and extract information from different files.
 '''
 
 
-def get_file_with_extension(folder, extensions, preference=None):
+def get_file(file):
     '''
-    Returns the file with one of the the specified `extensions`
-    (string or list with strings) in the given `folder`.
-    If there is more than one file with the extension,
-    it returns the one containing the `preference` string.
+    Check if the given `file` exists, and returns its full path.
+    If the file does not exist in the provided path,
+    it will check in the current working directory.
+    If the file is still missing, it raises an error.
     '''
-    files = get_files(folder, extensions)
-    if files is None:
-        return None
-    if len(files) > 1:
-        for file in files:
-            if preference in file:
-                return file
-        raise ValueError(folder + ' contains too many ' + extensions + ' files!')
-        #print("  ERROR: " + folder + " contains too many " + extensions + " files, skipping...")
-    return files[0]
+    if os.path.isfile(file):
+        return file
+    elif os.path.isfile(os.path.join(os.getcwd(), file)):
+        return os.path.join(os.getcwd(), file)
+    raise FileNotFoundError('Missing file at ' + file + ' or in the CWD ' + os.getcwd())
 
 
-def get_files_with_extension(folder, extensions):
+def get_files_from_folder(folder, extensions=None):
     '''
-    Returns a list with the files in a given `folder`
-    with the the specified `extensions` (string or list with strings).
-    '''
-    files = os.listdir(folder)
-    target_files = []
-    if not isinstance(extensions, list):
-        extensions = [extensions]
-    for extension in extensions:
-        for file in files:
-            if file.endswith(extension):
-                target_files.append(file)
-        if target_files:
-            return target_files
-    return None
+    Returns a list with the files in a given `folder`.
+    If the folder does not exist in the given path,
+    it checks in the current working directory.
+    If the folder is still missing, it raises an error.
 
-
-def count_files_with_extension(folder, extension):
+    If `extensions` is provided, it returns only the files
+    with the specified extension/s (string or list with strings).
     '''
-    Returns the number of files with the specified `extension` (string or list of strings) in the given `folder`.
-    '''
-    files = get_files(folder, extension)
-    if files is None:
-        return 0
-    return len(files)
+    if os.path.isdir(folder):
+        files = os.listdir(folder)
+    elif os.path.isdir(os.path.join(os.getcwd(), folder)):
+        files = os.listdir(os.path.join(os.getcwd(), folder))
+    else:
+        raise FileNotFoundError('Missing folder at ' + folder + ' or in the CWD ' + os.getcwd())
+    if extensions is None:
+        return files
+    else:
+        target_files = []
+        if not isinstance(extensions, list):
+            extensions = [extensions]
+        for extension in extensions:
+            for file in files:
+                if file.endswith(extension):
+                    target_files.append(file)
+        return target_files
 
 
 def rename_files(old_string:str, new_string:str):
@@ -211,7 +206,7 @@ def delete_lines_under_keyword(keyword:str, file:str):
     pass #TODO
 
 
-def replace_lines_between_keywords(text:str, key1:str, key2:str, file:str)
+def replace_lines_between_keywords(text:str, key1:str, key2:str, file:str):
     '''TO-CHECK'''
     delete_lines_between_keywords(key1, key2, file)
     insert_lines_under_keyword(text, key1, file)

@@ -5,7 +5,7 @@ Common functions and definitions.
 '''
 
 
-version = 'v0.2.0'
+version = 'v0.3.0'
 '''Package version, using semantic versioning to indicate breaking changes, as in v<MAJOR>.<MINOR>.<PATCH>.'''
 
 
