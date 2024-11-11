@@ -1,6 +1,7 @@
 '''
 # Description
 This submodule handles the creation of CP2K input files.
+Still under heavy development.
 
 # Index
 - `cp2k()`
@@ -13,7 +14,8 @@ This submodule handles the creation of CP2K input files.
 '''
 
 
-from . import tools
+from .tools import *
+from .common import *
 from ase.io import read
 
 
@@ -63,15 +65,14 @@ def cp2k():
     only_one_slurm_per_folder = True
     is_first_run_needed = False
 
-    print(tools.welcome('CP2K'))
+    print(welcome('CP2K'))
 
     path = os.getcwd()
-    inp_template = get_file(path, inp_template_extension)
-    slurm_template = get_file(path, slurm_template_extension)
+    inp_template = get_files_from_folder(path, inp_template_extension)
+    inp_template = get_file(inp_template[0])
+    slurm_template = get_files_from_folder(path, slurm_template_extension)
+    slurm_template = get_file(slurm_template[0])
 
-    if inp_template is None:
-        print("  ERROR: No '*" + inp_template_extension + "' input found in path, exiting...\n")
-        exit()
     new_inp_name = inp_template.replace(inp_template_extension, '.inp')
 
     if slurm_template is None: # Warning will be printed at the end
@@ -82,7 +83,7 @@ def cp2k():
     for folder in os.listdir('.'):
         if os.path.isdir(folder):
 
-            structure_name = get_file(folder, structure_extensions, preferred_structure_file)
+            structure_name = get_file_from_folder(folder, structure_extensions, preferred_structure_file)
             if structure_name is None:
                 continue
             else:
@@ -90,8 +91,8 @@ def cp2k():
 
             new_inp_path = os.path.join(folder, new_inp_name)
 
-            psf_file = get_file(folder, '.psf', preferred_psf_file)
-            pdb_file = get_file(folder, '.pdb', preferred_structure_file)
+            psf_file = get_file_from_folder(folder, '.psf', preferred_psf_file)
+            pdb_file = get_file_from_folder(folder, '.pdb', preferred_structure_file)
 
             cell = get_cell(structure_file)
             if cell is None:

@@ -1,4 +1,4 @@
-# Input Maker   
+# InputMaker v0.4.0
 Make all kind of inputs from a template file, thanks to a rich set of built-in functions.  
 Currently supports CP2K inputs, but can be easily extended to other packages.  
 
@@ -9,14 +9,41 @@ Currently supports CP2K inputs, but can be easily extended to other packages.
 - cif2cell package (for CASTEP inputs). To install it, run `pip install cif2cell`. Warning: cif2cell may not work in Windows.  
 
 
-## Running inputmaker.py  
+## Installation
 
-`inputmaker.py` can be easily imported and run from the command line or from another script, to use its built-in functions. For example, to rename files with a specific extension in all subfolders:  
+As always, it is recommended to install this package it in a virtual environment:  
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+```
 
+Then, install the package with pip:  
+```bash
+pip install .
+```
+
+After installation, you can run InputMaker as a regular python package.
+Most common tools are available to be called directly.
+For example, to rename files with a specific extension in all subfolders:  
 ```python
 >>> import inputmaker as im
 >>> im.rename_files_on_subfolders('.psf_','.psf')
 ```
+
+## Documentation
+
+Documentation is available locally on the `docs/inputmaker.html` folder.
+An [online documentation](https://pablogila.github.io/InputMaker/) is also available.
+
+
+---
+
+
+## Deprecated
+
+
+> Everything below is deprecated, as the script is now a regular python package. It will be removed in future versions.  
+
 
 You can also run the script with python (Windows), or python3 (Linux), with a flag to specify the kind of input, currently supporting CP2K and CASTEP.  
 
@@ -32,50 +59,8 @@ To create [CP2K inputs](#cp2k-inputs), the file structure should have been previ
 python3 inputmaker.py -cp2k
 ```
 
-More details 
 
-
-## Built-in functions  
-
-The power of `inputmaker.py` resides on its built-in functions, related to file manipulation and text processing. These functions make it really easy to create and modify all kind of templates.  
-A function named `cp2k()` is already predefined to create CP2K inputs. However, the script can be expanded with custom functions to create other types of inputs, thanks to its modular structure. A brief description of the built-in function is given below:  
-
-- `get_files(folder, extensions)`. Retrieves all files from a given folder that match the provided extensions. It returns a list of these files.  
-
-- `get_file(folder, extensions, preference=None)`. Retrieves a specific file from a given folder based on the provided extensions and preference. If multiple files match the criteria, it returns the file that contains the preference in its name. If no preference is provided or no file matches the preference, but there are multiple files with the given extensions, it prints an error message and returns None. If only one file matches the extensions, it returns that file. Depends on get_files(). Usage: get_file('/path/to/folder', ['.txt', '.doc'], 'preferred_file.txt').  
-
-- `count_files(folder, extension)`: Counts the number of files in a given folder that match the provided extension. Depends on get_files(). Usage: count_files('/path/to/folder', '.txt').  
-
-- `copy_as_newfile(template, new_file)`: Copies the content of a template file to a new file.  
-
-- `template_to_newfile(template, new_file, comment)`: Copies the content of a template file to a new file and inserts a comment at the beginning of the new file. Depends on copy_as_newfile().  
-
-- `delete_lines_between_keywords(key1, key2, filepath)`: Deletes lines between two keywords in a file. Usage: delete_lines_between_keywords('#key_start', '#key_end', 'file.txt').  
-
-- `add_lines_under_keyword(lines, keyword, filename)`: Adds lines under a specific keyword in a file. Usage: add_lines_under_keyword(['line1', 'line2'], 'keyword', 'file.txt').  
-
-- `replace_lines_under_keyword(lines, keyword, filename)`: Replaces lines under a specific keyword in a file. Usage: replace_lines_under_keyword(['new line1', 'new line2'], 'keyword', 'file.txt').  
-
-- `replace_full_line_with_keyword(new_text, keyword, filename)`: Replaces a full line containing a specific keyword in a file with new text. Usage: replace_full_line_with_keyword('new text', 'keyword', 'file.txt').  
-
-- `replace_str_on_keyword(new_text, keyword, filename)`: Replaces a specific keyword in a file with new text. Usage: replace_str_on_keyword('new text', 'keyword', 'file.txt').  
-
-- `correct_file_with_dict(filename, fixing_psf)`: Corrects a file by replacing specific keywords with corresponding values from a dictionary. Usage: correct_file_with_dict('file.txt', {'old1': 'new1', 'old2': 'new2'}).  
-
-- `get_cell(structure_file, alternate_extension='.inp.old')`: Retrieves cell parameters from a structure file. Depends on get_cell_from_inp() and get_cell_from_ase(), and returns the cell parameters in the CP2K format.
-
-- `get_cell_from_ase(structure_file_path)`: Retrieves cell parameters from an ase file.  
-
-- `get_cell_from_inp(inp_file_path)`: Retrieves cell parameters from an old inp file.  
-
-- `get_coords(structure_file_path)`: Retrieves atomic positions from a structure file, using ASE.  
-
-- `rename_files_on_subfolders(old_extension, new_extension)`: Renames files with a specific old extension to a new extension in all subfolders. It is usefull to import the script and use this function on the command line, to prepare the inputs. Usage: rename_files_on_subfolders('.inp', '.inp.old')  
-
-- `copy_files_to_subfolders(extension, words_to_delete=[])`: Copies files with a specific extension to new subfolders. The subfolders are named after the original files, with certain words removed.  
-
-
-## CASTEP inputs
+### CASTEP inputs
 
 CASTEP `*.cell` files can be mass-produced by running the script with the `-castep` flag. The script will then search for all `*.cif` files on the current path; if none are found, then it will check each subfolder.  
 The script will also create a supercell, if the `-supercell=[k,l,m]` flag is provided, replacing `k`, `l`, and `m` with the desired supercell size (e.g. [3,2,3], etc).  
@@ -88,7 +73,7 @@ python3 inputmaker.py -castep -supercell=[k,l,m] -out
 ```
 
 
-## CP2K inputs
+### CP2K inputs
 
 The template for CP2K inputs should contain several keywords, where the text will be replaced. For instance, you need a keyword just before the ABC rows of the `&CELL` section, which will be replaced by the updated cells. This keyword should be specified on the `key_cell` variable of the `cp2k()` function.  
 An example of a cell section of a template file:  
@@ -187,12 +172,12 @@ root_folder
 ```
 
 
-### Optional: Reusing old CP2K inputs  
+#### Optional: Reusing old CP2K inputs  
 
 You can also reuse old `*.inp` files, by changing the extension to `.inp.old`. It will then copy to the template just the ABC rows from the &CELL section, after the keyword.  
 
 
-## Sbatch'ing slurm files  
+### Sbatch'ing slurm files  
 
 If there is only one `*.sh` slurm file per folder, you can sbatch' all inputs with the command:  
 

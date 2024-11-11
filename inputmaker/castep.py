@@ -12,6 +12,10 @@ Still under heavy development.
 from . import tools
 
 def castep(supercell = None, custom_out_folder = None, move_to_subfolders = False):
+    '''
+    Create CASTEP input files from CIF files.
+    This function is still under heavy development.
+    '''
 
     print(tools.welcome('CASTEP'))
 

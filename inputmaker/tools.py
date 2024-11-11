@@ -5,6 +5,7 @@ Common functions to manipulate input files with custom keywords.
 # Index
 - `get_file()`
 - `get_files_from_folder()`
+- `get_file_from_folder()`
 - `rename_files()`
 - `rename_files_on_subfolders()`
 - `copy_files_to_subfolders()`
@@ -23,7 +24,7 @@ Common functions to manipulate input files with custom keywords.
 '''
 
 
-def get_file(file):
+def get_file(file:str) -> str:
     '''
     Check if the given `file` exists, and returns its full path.
     If the file does not exist in the provided path,
@@ -37,7 +38,7 @@ def get_file(file):
     raise FileNotFoundError('Missing file at ' + file + ' or in the CWD ' + os.getcwd())
 
 
-def get_files_from_folder(folder, extensions=None):
+def get_files_from_folder(folder:str, extensions=None) -> list:
     '''
     Returns a list with the files in a given `folder`.
     If the folder does not exist in the given path,
@@ -66,7 +67,22 @@ def get_files_from_folder(folder, extensions=None):
         return target_files
 
 
-def rename_files(old_string:str, new_string:str):
+def get_file_from_folder(folder:str, extensions=None, preferred_file:str=None) -> str:
+    '''
+    Returns the first file with the given `extension` (str or list of strings)
+    in the given `folder`.
+    If `preferred_file` is provided and found, it will return that file.
+    '''
+    files = get_files_from_folder(folder, extensions)
+    if preferred_file in files:
+        return preferred_file
+    elif files:
+        return files[0]
+    else:
+        return None
+
+
+def rename_files(old_string:str, new_string:str) -> None:
     '''
     Renames files in the current working directory,
     replacing the `old_string` by the `new_string`.
@@ -74,12 +90,13 @@ def rename_files(old_string:str, new_string:str):
     for file in os.listdir('.'):
         if old_string in file:
             os.rename(file, file.replace(old_string, new_string))
+    return None
 
 
-def rename_files_on_subfolders(old_extension:str, new_extension:str):
+def rename_files_on_subfolders(old_extension:str, new_extension:str) -> None:
     '''
-    Renames the files with the `old_extension` to the `new_extension`.
-    Runs in the current working directory.
+    Renames the files inside the subfolders in the current working directory,
+    from an `old_extension` to the `new_extension`.
     '''
     for folder in os.listdir('.'):
         if os.path.isdir(folder):
@@ -88,9 +105,10 @@ def rename_files_on_subfolders(old_extension:str, new_extension:str):
                     old_file = os.path.join(folder, file)
                     new_file = os.path.join(folder, file.replace(old_extension, new_extension))
                     os.rename(old_file, new_file)
+    return None
 
 
-def copy_files_to_subfolders(extension, words_to_delete=[]):
+def copy_files_to_subfolders(extension:str, words_to_delete=[]) -> None:
     '''
     Copies the files with the given `extension` to individual subfolders.
     Runs in the current working directory.
@@ -99,8 +117,6 @@ def copy_files_to_subfolders(extension, words_to_delete=[]):
     old_files = get_files(path, extension)
     if old_files is None:
         raise ValueError('No ' + extension + ' files found in path!')
-        #print("  WARNING: no " + extension + " files found in path, skipping...\n")
-        return
     for old_file in old_files:
         new_file = old_file
         for word in words_to_delete:
@@ -109,9 +125,10 @@ def copy_files_to_subfolders(extension, words_to_delete=[]):
         os.makedirs(folder)
         new_file_path = folder + '/' + new_file
         copy_as_newfile(old_file, new_file_path)
+    return None
 
 
-def copy_to_newfile(original_file, new_file):
+def copy_to_newfile(original_file:str, new_file:str) -> None:
     '''
     Copies the content of `original_file` to `new_file`.
     Used to create a new file from a template.
@@ -120,23 +137,24 @@ def copy_to_newfile(original_file, new_file):
         template_content = f.readlines()
     with open(new_file, 'w') as new_file:
         new_file.writelines(template_content)
-    return
+    return None
 
 
-def template_to_newfile(template, new_file, comment:str):
+def template_to_newfile(template:str, new_file:str, comment:str) -> None:
     '''
     Same as `copy_as_newfile`, but adds a `comment`
     at the beginning of the new file.
     '''
-    copy_as_newfile(template, new_file)
+    copy_to_newfile(template, new_file)
     with open(new_file, 'r') as file:
         lines = file.readlines()
     lines.insert(0, comment + '\n')
     with open(new_file, 'w') as file:
         file.writelines(lines)
+    return None
 
 
-def replace_str_on_keyword(text:str, keyword:str, file:str):
+def replace_str_on_keyword(text:str, keyword:str, file:str) -> None:
     '''
     Replaces the `keyword` string with the `text` string in the given `filename`.
     '''
@@ -147,10 +165,10 @@ def replace_str_on_keyword(text:str, keyword:str, file:str):
             if keyword in line:
                 line = line.replace(keyword, text)
             file.write(line)
-    return
+    return None
 
 
-def replace_line_with_keyword(text:str, keyword:str, file:str):
+def replace_line_with_keyword(text:str, keyword:str, file:str) -> None:
     '''
     Replaces the full line containing the `keyword` string
     with the `text` string in the given `file`.
@@ -162,58 +180,74 @@ def replace_line_with_keyword(text:str, keyword:str, file:str):
             if keyword in line:
                 line = text + '\n'
             file.write(line)
-    return
+    return None
 
 
-def insert_lines_under_keyword(lines:str, keyword:str, file:str):
+def insert_text_under_keyword(text:str, keyword:str, file:str) -> None:
     '''
-    Inserts the given `lines` string under the first occurrence
+    Inserts the given `text` string under the first occurrence
     of the `keyword` in the given `file`.
     '''
     with open(file, 'r') as file:
         document = file.readlines()
     index = next((i for i, line in enumerate(document) if line.strip().startswith(keyword)), None)
     if index is not None:
-        for i, line in enumerate(lines):
+        for i, line in enumerate(text):
             document.insert(index + 1 + i, line + "\n")
         with open(file, 'w') as file:
             file.writelines(document)
     else:
         raise ValueError("Didn't find the '" + keyword + "' keyword in " + file)
-    return
+    return None
 
 
-def replace_lines_under_keyword(lines:str, keyword:str, file:str):
+def replace_text_under_keyword(text:str, keyword:str, file:str) -> None:
     '''
     Replaces the lines under the first occurrence of the `keyword`
-    in the given `filename` with the given `lines` string.
+    in the given `filename` with the given `text` string.
     '''
     with open(file, 'r') as file:
         document = file.readlines()
     index = next((i for i, line in enumerate(document) if line.strip().startswith(keyword)), None)
     if index is not None:
-        for i, row in enumerate(lines):
+        for i, row in enumerate(text):
             if index + 1 + i < len(document):
                 document[index + 1 + i] = row + "\n"
         with open(file, 'w') as file:
             file.writelines(document)
     else:
         raise ValueError("Didn't find the '" + keyword + "' keyword in " + file)
-    return
+    return None
 
 
-def delete_lines_under_keyword(keyword:str, file:str):
-    pass #TODO
+def delete_text_under_keyword(keyword:str, file:str) -> None:
+    '''
+    Deletes the lines under the first occurrence of the `keyword` in the given `file`.
+    '''
+    with open(file, 'r') as f:
+        lines = f.readlines()
+    keep = []
+    for line in lines:
+        if keyword in line:
+            break
+        else:
+            keep.append(line)
+    with open(file, 'w') as f:
+        f.writelines(keep)
+    return None
 
 
-def replace_lines_between_keywords(text:str, key1:str, key2:str, file:str):
-    '''TO-CHECK'''
-    delete_lines_between_keywords(key1, key2, file)
-    insert_lines_under_keyword(text, key1, file)
-    return
+def replace_text_between_keywords(text:str, key1:str, key2:str, file:str) -> None:
+    '''
+    Replace lines with a given `text`, between the keywords `key1` and `key2`,
+    in a given `file`.
+    '''
+    delete_text_between_keywords(key1, key2, file)
+    insert_text_under_keyword(text, key1, file)
+    return None
 
 
-def delete_lines_between_keywords(key1:str, key2:str, file:str):
+def delete_text_between_keywords(key1:str, key2:str, file:str) -> None:
     '''Deletes the lines between two keywords in a given `file`.'''
     with open(file, 'r') as f:
         lines = f.readlines()
@@ -228,10 +262,10 @@ def delete_lines_between_keywords(key1:str, key2:str, file:str):
             keep.append(line)
     with open(file, 'w') as f:
         f.writelines(keep)
-    return
+    return None
 
 
-def correct_file_with_dict(file, fixing_dict:dict):
+def correct_file_with_dict(file:str, fixing_dict:dict) -> None:
     '''
     Corrects the given `file` using the `fixing_dict` dictionary.
     '''
@@ -248,5 +282,5 @@ def correct_file_with_dict(file, fixing_dict:dict):
             for key, value in fixing_dict.items():
                 replace_str_on_keyword(value, key, filename)
             break
-    return
+    return None
 

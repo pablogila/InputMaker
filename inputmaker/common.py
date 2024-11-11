@@ -5,12 +5,12 @@ Common functions and definitions.
 '''
 
 
-version = 'v0.3.0'
+version = 'v0.4.0'
 '''Package version, using semantic versioning to indicate breaking changes, as in v<MAJOR>.<MINOR>.<PATCH>.'''
 
 
-def welcome(submodule_str=''):
-    '''Returns the welcome message.'''
+def welcome(submodule_str:str='') -> str:
+    '''Returns the welcome message as a string.'''
     for_submodule_str = ''
     if submodule_str:
         for_submodule_str = ' for ' + submodule_str + ' inputs.'
@@ -25,3 +25,4 @@ def welcome(submodule_str=''):
     string += 'https://github.com/pablogila/InputMaker\n'
     string += '-------------------------------------------------------------\n'
     return string
+
