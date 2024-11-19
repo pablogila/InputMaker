@@ -24,7 +24,10 @@ Common functions to manipulate input files with custom keywords.
 '''
 
 
-def get_file(file:str) -> str:
+import os
+
+
+def get_file(file):
     '''
     Check if the given `file` exists, and returns its full path.
     If the file does not exist in the provided path,
@@ -67,7 +70,7 @@ def get_files_from_folder(folder:str, extensions=None) -> list:
         return target_files
 
 
-def get_file_from_folder(folder:str, extensions=None, preferred_file:str=None) -> str:
+def get_file_from_folder(folder:str, extensions=None, preferred_file:str=None):
     '''
     Returns the first file with the given `extension` (str or list of strings)
     in the given `folder`.
@@ -114,7 +117,7 @@ def copy_files_to_subfolders(extension:str, words_to_delete=[]) -> None:
     Runs in the current working directory.
     '''
     path = os.getcwd()
-    old_files = get_files(path, extension)
+    old_files = get_files_from_folder(path, extension)
     if old_files is None:
         raise ValueError('No ' + extension + ' files found in path!')
     for old_file in old_files:
@@ -124,7 +127,7 @@ def copy_files_to_subfolders(extension:str, words_to_delete=[]) -> None:
         folder = new_file.replace(extension, '')
         os.makedirs(folder)
         new_file_path = folder + '/' + new_file
-        copy_as_newfile(old_file, new_file_path)
+        copy_to_newfile(old_file, new_file_path)
     return None
 
 
@@ -154,7 +157,7 @@ def template_to_newfile(template:str, new_file:str, comment:str) -> None:
     return None
 
 
-def replace_str_on_keyword(text:str, keyword:str, file:str) -> None:
+def replace_str_on_keyword(text:str, keyword:str, file) -> None:
     '''
     Replaces the `keyword` string with the `text` string in the given `filename`.
     '''
@@ -168,7 +171,7 @@ def replace_str_on_keyword(text:str, keyword:str, file:str) -> None:
     return None
 
 
-def replace_line_with_keyword(text:str, keyword:str, file:str) -> None:
+def replace_line_with_keyword(text:str, keyword:str, file) -> None:
     '''
     Replaces the full line containing the `keyword` string
     with the `text` string in the given `file`.
@@ -183,7 +186,7 @@ def replace_line_with_keyword(text:str, keyword:str, file:str) -> None:
     return None
 
 
-def insert_text_under_keyword(text:str, keyword:str, file:str) -> None:
+def insert_text_under_keyword(text:str, keyword:str, file) -> None:
     '''
     Inserts the given `text` string under the first occurrence
     of the `keyword` in the given `file`.
@@ -201,7 +204,7 @@ def insert_text_under_keyword(text:str, keyword:str, file:str) -> None:
     return None
 
 
-def replace_text_under_keyword(text:str, keyword:str, file:str) -> None:
+def replace_text_under_keyword(text:str, keyword:str, file) -> None:
     '''
     Replaces the lines under the first occurrence of the `keyword`
     in the given `filename` with the given `text` string.
@@ -220,7 +223,7 @@ def replace_text_under_keyword(text:str, keyword:str, file:str) -> None:
     return None
 
 
-def delete_text_under_keyword(keyword:str, file:str) -> None:
+def delete_text_under_keyword(keyword:str, file) -> None:
     '''
     Deletes the lines under the first occurrence of the `keyword` in the given `file`.
     '''
@@ -237,7 +240,7 @@ def delete_text_under_keyword(keyword:str, file:str) -> None:
     return None
 
 
-def replace_text_between_keywords(text:str, key1:str, key2:str, file:str) -> None:
+def replace_text_between_keywords(text:str, key1:str, key2:str, file) -> None:
     '''
     Replace lines with a given `text`, between the keywords `key1` and `key2`,
     in a given `file`.
@@ -247,7 +250,7 @@ def replace_text_between_keywords(text:str, key1:str, key2:str, file:str) -> Non
     return None
 
 
-def delete_text_between_keywords(key1:str, key2:str, file:str) -> None:
+def delete_text_between_keywords(key1:str, key2:str, file) -> None:
     '''Deletes the lines between two keywords in a given `file`.'''
     with open(file, 'r') as f:
         lines = f.readlines()
@@ -265,22 +268,23 @@ def delete_text_between_keywords(key1:str, key2:str, file:str) -> None:
     return None
 
 
-def correct_file_with_dict(file:str, fixing_dict:dict) -> None:
+def correct_file_with_dict(file, fixing_dict:dict) -> None:
     '''
     Corrects the given `file` using the `fixing_dict` dictionary.
     '''
     found_key = False
-    with open(file, 'r') as file:
-        lines = file.readlines()
+    with open(file, 'r') as f:
+        lines = f.readlines()
     for line in lines:
-        for key in fixing_dict.keys():
-            if key in line:
-                found_key = True
-                break
-        if found_key:
-            print("Correcting " + file + "...")
-            for key, value in fixing_dict.items():
-                replace_str_on_keyword(value, key, filename)
+        if any(key in line for key in fixing_dict.keys()):
+            found_key = True
             break
+    if found_key:
+        print("Correcting " + file + " ...")
+        with open(file, 'w') as f:
+            for line in lines:
+                for key, value in fixing_dict.items():
+                    line = line.replace(key, value)
+                f.write(line)
     return None
 

@@ -4,6 +4,7 @@
 
 from .common import *
 from .tools import *
+from .call import *
 from . import castep
 from . import cp2k
 #from . import run
