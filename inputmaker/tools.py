@@ -9,15 +9,15 @@ Common functions to manipulate input files with custom keywords.
 - `rename_files()`
 - `rename_files_on_subfolders()`
 - `copy_files_to_subfolders()`
-- `copy_to_newfile()`
-- `template_to_newfile()`
+- `copy_file()`
+- `template_to_file()`
 - `replace_str_on_keyword()`
 - `replace_line_with_keyword()`
-- `insert_lines_under_keyword()`
-- `replace_lines_under_keyword()`
-- `delete_lines_under_keyword()`
-- `replace_lines_between_keywords()`
-- `delete_lines_between_keywords()`
+- `insert_text_under_keyword()`
+- `replace_text_under_keyword()`
+- `delete_text_under_keyword()`
+- `replace_text_between_keywords()`
+- `delete_text_between_keywords()`
 - `correct_file_with_dict()`
 
 ---
@@ -85,12 +85,21 @@ def get_file_from_folder(folder:str, extensions=None, preferred_file:str=None):
         return None
 
 
-def rename_files(old_string:str, new_string:str) -> None:
+def rename_files(old_string:str, new_string:str, folder=None) -> None:
     '''
     Renames files in the current working directory,
     replacing the `old_string` by the `new_string`.
+    If `folder` is empty, the current working directory is used.
     '''
-    for file in os.listdir('.'):
+    if folder is None:
+        files = os.listdir('.')
+    elif os.path.isdir(folder):
+        files = os.listdir(folder)
+    elif os.path.isdir(os.path.join(os.getcwd(), folder)):
+        files = os.listdir(os.path.join(os.getcwd(), folder))
+    else:
+        raise FileNotFoundError('Missing folder at ' + folder + ' or in the CWD ' + os.getcwd())
+    for file in files:
         if old_string in file:
             os.rename(file, file.replace(old_string, new_string))
     return None
@@ -111,9 +120,11 @@ def rename_files_on_subfolders(old_extension:str, new_extension:str) -> None:
     return None
 
 
-def copy_files_to_subfolders(extension:str, words_to_delete=[]) -> None:
+def copy_files_to_subfolders(extension:str, strings_to_delete:list=[]) -> None:
     '''
     Copies the files with the given `extension` to individual subfolders.
+    The subfolders are named as the original files,
+    removing the strings from the `strings_to_delete` list.
     Runs in the current working directory.
     '''
     path = os.getcwd()
@@ -122,16 +133,16 @@ def copy_files_to_subfolders(extension:str, words_to_delete=[]) -> None:
         raise ValueError('No ' + extension + ' files found in path!')
     for old_file in old_files:
         new_file = old_file
-        for word in words_to_delete:
-            new_file = new_file.replace(word, '')
+        for string in strings_to_delete:
+            new_file = new_file.replace(string, '')
         folder = new_file.replace(extension, '')
         os.makedirs(folder)
         new_file_path = folder + '/' + new_file
-        copy_to_newfile(old_file, new_file_path)
+        copy_file(old_file, new_file_path)
     return None
 
 
-def copy_to_newfile(original_file:str, new_file:str) -> None:
+def copy_file(original_file:str, new_file:str) -> None:
     '''
     Copies the content of `original_file` to `new_file`.
     Used to create a new file from a template.
@@ -144,12 +155,12 @@ def copy_to_newfile(original_file:str, new_file:str) -> None:
     return None
 
 
-def template_to_newfile(template:str, new_file:str, comment:str) -> None:
+def template_to_file(template:str, new_file:str, comment:str) -> None:
     '''
-    Same as `copy_as_newfile`, but adds a `comment`
+    Same as `copy_file`, but adds a `comment`
     at the beginning of the new file.
     '''
-    copy_to_newfile(template, new_file)
+    copy_file(template, new_file)
     with open(new_file, 'r') as file:
         lines = file.readlines()
     lines.insert(0, comment + '\n')
@@ -163,6 +174,7 @@ def replace_str_on_keyword(text:str, keyword:str, file:str, only_first=False) ->
     Replaces the `keyword` string with the `text` string in the given `filename`.
     If `only_first=True`, it will only work
     at the first instance of the keyword, ignoring the rest.
+    The keyword can be at any position in the line, not just at the beginning.
     ```
     line... keyword ...line -> line... text ...line
     ```
@@ -187,6 +199,7 @@ def replace_line_with_keyword(text:str, keyword:str, file:str, only_first=False)
     with the `text` string in the given `file`.
     If `only_first=True`, it will only work
     at the first instance of the keyword, ignoring the rest.
+    The keyword can be at any position in the line, not just at the beginning.
     ```
     line1
     keyword line2 -> text
@@ -214,6 +227,7 @@ def insert_text_under_keyword(text:str, keyword:str, file:str, only_first=False)
     The keyword can be at any position within the line.
     If `only_first=True`, it will only work
     at the first instance of the keyword, ignoring the rest.
+    The keyword can be at any position in the line, not just at the beginning.
     ```
     line1
     keyword line2
@@ -242,6 +256,7 @@ def replace_text_under_keyword(text:str, keyword:str, file:str) -> None:
     '''
     Replaces the lines under the first occurrence of the `keyword`
     in the given `filename` with the given `text` string.
+    > TO-DO: IN THE FUTURE SHOULD BE POSITION-AGNOSTIC. The keyword currently must be at the beginning.
     ```
     line1
     keyword line2
@@ -267,6 +282,7 @@ def replace_text_under_keyword(text:str, keyword:str, file:str) -> None:
 def delete_text_under_keyword(keyword:str, file:str) -> None:
     '''
     Deletes the lines under the first occurrence of the `keyword` in the given `file`.
+    > TO-DO: IN THE FUTURE SHOULD BE POSITION-AGNOSTIC
     ```
     lines...
     keyword

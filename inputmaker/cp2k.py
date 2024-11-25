@@ -98,7 +98,7 @@ def cp2k():
             if cell is None:
                 continue
 
-            template_to_newfile(inp_template, new_inp_path, "! This file was created from " + inp_template + " with " + name() + " " + version())
+            template_to_file(inp_template, new_inp_path, "! This file was created from " + inp_template + " with " + name() + " " + version())
 
             replace_lines_under_keyword(cell, key_cell, new_inp_path)
 
@@ -107,7 +107,7 @@ def cp2k():
                 positions = get_coords(structure_file)
                 if positions is None:
                     continue
-                template_to_newfile(new_inp_path, new_inp_path, "! WARNING: Perform a first run of CP2K to create the *.psf file, then run again " + name() + " and CP2K.")
+                template_to_file(new_inp_path, new_inp_path, "! WARNING: Perform a first run of CP2K to create the *.psf file, then run again " + name() + " and CP2K.")
                 delete_lines_between_keywords(key_topology_run, key_topology_end, new_inp_path)
                 insert_lines_under_keyword(positions, key_coordinates, new_inp_path)
                 replace_lines_under_keyword(['    STEPS 1'], key_steps, new_inp_path)
