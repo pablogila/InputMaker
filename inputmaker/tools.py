@@ -27,7 +27,7 @@ Common functions to manipulate input files with custom keywords.
 import os
 
 
-def get_file(file):
+def get_file(file:str):
     '''
     Check if the given `file` exists, and returns its full path.
     If the file does not exist in the provided path,
@@ -136,7 +136,8 @@ def copy_to_newfile(original_file:str, new_file:str) -> None:
     Copies the content of `original_file` to `new_file`.
     Used to create a new file from a template.
     '''
-    with open(original_file, 'r') as f:
+    original_file_path = get_file(original_file)
+    with open(original_file_path, 'r') as f:
         template_content = f.readlines()
     with open(new_file, 'w') as new_file:
         new_file.writelines(template_content)
@@ -157,77 +158,123 @@ def template_to_newfile(template:str, new_file:str, comment:str) -> None:
     return None
 
 
-def replace_str_on_keyword(text:str, keyword:str, file) -> None:
+def replace_str_on_keyword(text:str, keyword:str, file:str, only_first=False) -> None:
     '''
     Replaces the `keyword` string with the `text` string in the given `filename`.
+    If `only_first=True`, it will only work
+    at the first instance of the keyword, ignoring the rest.
+    ```
+    line... keyword ...line -> line... text ...line
+    ```
     '''
-    with open(file, 'r') as file:
-        lines = file.readlines()
-    with open(file, 'w') as file:
+    is_replacing = True
+    file_path = get_file(file)
+    with open(file_path, 'r') as f:
+        lines = f.readlines()
+    with open(file_path, 'w') as f:
         for line in lines:
-            if keyword in line:
+            if keyword in line and is_replacing:
                 line = line.replace(keyword, text)
-            file.write(line)
+                if only_first:
+                    is_replacing = False
+            f.write(line)
     return None
 
 
-def replace_line_with_keyword(text:str, keyword:str, file) -> None:
+def replace_line_with_keyword(text:str, keyword:str, file:str, only_first=False) -> None:
     '''
     Replaces the full line containing the `keyword` string
     with the `text` string in the given `file`.
+    If `only_first=True`, it will only work
+    at the first instance of the keyword, ignoring the rest.
+    ```
+    line1
+    keyword line2 -> text
+    line3
+    ```
     '''
-    with open(file, 'r') as file:
-        lines = file.readlines()
-    with open(file, 'w') as file:
+    is_replacing = True
+    file_path = get_file(file)
+    with open(file_path, 'r') as f:
+        lines = f.readlines()
+    with open(file_path, 'w') as f:
         for line in lines:
-            if keyword in line:
+            if keyword in line and is_replacing:
                 line = text + '\n'
-            file.write(line)
+                if only_first:
+                    is_replacing = False
+            f.write(line)
     return None
 
 
-def insert_text_under_keyword(text:str, keyword:str, file) -> None:
+def insert_text_under_keyword(text:str, keyword:str, file:str, only_first=False) -> None:
     '''
     Inserts the given `text` string under the first occurrence
     of the `keyword` in the given `file`.
+    The keyword can be at any position within the line.
+    If `only_first=True`, it will only work
+    at the first instance of the keyword, ignoring the rest.
+    ```
+    line1
+    keyword line2
+    text
+    line3
+    ```
     '''
-    with open(file, 'r') as file:
-        document = file.readlines()
-    index = next((i for i, line in enumerate(document) if line.strip().startswith(keyword)), None)
-    if index is not None:
-        for i, line in enumerate(text):
-            document.insert(index + 1 + i, line + "\n")
-        with open(file, 'w') as file:
-            file.writelines(document)
+    file_path = get_file(file)
+    with open(file_path, 'r') as f:
+        document = f.readlines()
+    indices = (i for i, line in enumerate(document) if keyword in line.strip())
+    if indices:
+        if only_first:
+            document.insert(indices[0] + 1, text + "\n")
+        else:
+            for index in indices:
+                document.insert(index + 1, text + "\n")
+        with open(file_path, 'w') as f:
+            f.writelines(document)
     else:
-        raise ValueError("Didn't find the '" + keyword + "' keyword in " + file)
+        raise ValueError("Didn't find the '" + keyword + "' keyword in " + file_path)
     return None
 
 
-def replace_text_under_keyword(text:str, keyword:str, file) -> None:
+def replace_text_under_keyword(text:str, keyword:str, file:str) -> None:
     '''
     Replaces the lines under the first occurrence of the `keyword`
     in the given `filename` with the given `text` string.
+    ```
+    line1
+    keyword line2
+    text
+    line4
+    ```
     '''
-    with open(file, 'r') as file:
-        document = file.readlines()
+    file_path = get_file(file)
+    with open(file_path, 'r') as f:
+        document = f.readlines()
     index = next((i for i, line in enumerate(document) if line.strip().startswith(keyword)), None)
     if index is not None:
         for i, row in enumerate(text):
             if index + 1 + i < len(document):
                 document[index + 1 + i] = row + "\n"
-        with open(file, 'w') as file:
+        with open(file_path, 'w') as f:
             file.writelines(document)
     else:
-        raise ValueError("Didn't find the '" + keyword + "' keyword in " + file)
+        raise ValueError("Didn't find the '" + keyword + "' keyword in " + file_path)
     return None
 
 
-def delete_text_under_keyword(keyword:str, file) -> None:
+def delete_text_under_keyword(keyword:str, file:str) -> None:
     '''
     Deletes the lines under the first occurrence of the `keyword` in the given `file`.
+    ```
+    lines...
+    keyword
+    (end of file)
+    ```
     '''
-    with open(file, 'r') as f:
+    file_path = get_file(file)
+    with open(file_path, 'r') as f:
         lines = f.readlines()
     keep = []
     for line in lines:
@@ -240,19 +287,36 @@ def delete_text_under_keyword(keyword:str, file) -> None:
     return None
 
 
-def replace_text_between_keywords(text:str, key1:str, key2:str, file) -> None:
+def replace_text_between_keywords(text:str, key1:str, key2:str, file:str) -> None:
     '''
     Replace lines with a given `text`, between the keywords `key1` and `key2`,
     in a given `file`.
+    ```
+    lines...
+    key1
+    text
+    key2
+    lines...
+    ```
     '''
     delete_text_between_keywords(key1, key2, file)
     insert_text_under_keyword(text, key1, file)
     return None
 
 
-def delete_text_between_keywords(key1:str, key2:str, file) -> None:
-    '''Deletes the lines between two keywords in a given `file`.'''
-    with open(file, 'r') as f:
+def delete_text_between_keywords(key1:str, key2:str, file:str) -> None:
+    '''
+    Deletes the lines between two keywords in a given `file`.
+    ```
+    lines...
+    key1
+    (lines to be deleted)
+    key2
+    lines...
+    ```
+    '''
+    file_path = get_file(file)
+    with open(file_path, 'r') as f:
         lines = f.readlines()
     keep = []
     skip = False
@@ -263,25 +327,26 @@ def delete_text_between_keywords(key1:str, key2:str, file) -> None:
             skip = False
         if not skip or key1 in line:
             keep.append(line)
-    with open(file, 'w') as f:
+    with open(file_path, 'w') as f:
         f.writelines(keep)
     return None
 
 
-def correct_file_with_dict(file, fixing_dict:dict) -> None:
+def correct_file_with_dict(file:str, fixing_dict:dict) -> None:
     '''
     Corrects the given `file` using the `fixing_dict` dictionary.
     '''
+    file_path = get_file(file)
     found_key = False
-    with open(file, 'r') as f:
+    with open(file_path, 'r') as f:
         lines = f.readlines()
     for line in lines:
         if any(key in line for key in fixing_dict.keys()):
             found_key = True
             break
     if found_key:
-        print("Correcting " + file + " ...")
-        with open(file, 'w') as f:
+        print("Correcting " + file_path + " ...")
+        with open(file_path, 'w') as f:
             for line in lines:
                 for key, value in fixing_dict.items():
                     line = line.replace(key, value)
