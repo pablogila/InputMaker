@@ -1,4 +1,4 @@
-# InputMaker v0.4.0
+# InputMaker v0.7.0
 Make all kind of inputs from a template file, thanks to a rich set of built-in functions.  
 Currently supports CP2K inputs, but can be easily extended to other packages.  
 
