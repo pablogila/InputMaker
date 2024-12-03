@@ -61,11 +61,10 @@
 
             <h2>Contents</h2>
             <ul>
-  <li><a href="#inputmaker-v070">InputMaker v0.7.0</a>
+  <li><a href="#inputmaker-v100">InputMaker v1.0.0</a>
   <ul>
     <li><a href="#installation">Installation</a></li>
     <li><a href="#documentation">Documentation</a></li>
-    <li><a href="#deprecated">Deprecated</a></li>
   </ul></li>
 </ul>
 
@@ -73,14 +72,12 @@
             <h2>Submodules</h2>
             <ul>
                     <li><a href="inputmaker/call.html">call</a></li>
-                    <li><a href="inputmaker/castep.html">castep</a></li>
                     <li><a href="inputmaker/common.html">common</a></li>
-                    <li><a href="inputmaker/cp2k.html">cp2k</a></li>
                     <li><a href="inputmaker/tools.html">tools</a></li>
             </ul>
 
 
-            <footer>InputMaker v0.7.0 documentation</footer>
+            <footer>InputMaker v1.0.0 documentation</footer>
 
         <a class="attribution" title="pdoc: Python API documentation generator" href="https://pdoc.dev" target="_blank">
             built with <span class="visually-hidden">pdoc</span><img
@@ -94,18 +91,9 @@
                     <h1 class="modulename">
 inputmaker    </h1>
 
-                        <div class="docstring"><h1 id="inputmaker-v070">InputMaker v0.7.0</h1>
+                        <div class="docstring"><h1 id="inputmaker-v100">InputMaker v1.0.0</h1>
 
-<p>Make all kind of inputs from a template file, thanks to a rich set of built-in functions.<br />
-Currently supports CP2K inputs, but can be easily extended to other packages.  </p>
-
-<h3 id="dependencies">Dependencies</h3>
-
-<ul>
-<li>Python 3.X  </li>
-<li>ASE package (for CP2K inputs). To install it, run <code>pip install ase</code>.  </li>
-<li>cif2cell package (for CASTEP inputs). To install it, run <code>pip install cif2cell</code>. Warning: cif2cell may not work in Windows.  </li>
-</ul>
+<p>This Python3 package allows you to make all kind of text files from a template file, thanks to a rich set of built-in functions.</p>
 
 <h2 id="installation">Installation</h2>
 
@@ -138,168 +126,19 @@ For example, to rename files with a specific extension in all subfolders:  </p>
 
 <p>Documentation is available locally on the <code>docs/inputmaker.html</code> folder.
 An <a href="https://pablogila.github.io/InputMaker/">online documentation</a> is also available.</p>
-
-<hr />
-
-<h2 id="deprecated">Deprecated</h2>
-
-<blockquote>
-  <p>Everything below is deprecated, as the script is now a regular python package. It will be removed in future versions.  </p>
-</blockquote>
-
-<p>You can also run the script with python (Windows), or python3 (Linux), with a flag to specify the kind of input, currently supporting CP2K and CASTEP.  </p>
-
-<p>To mass-create <code>*.cell</code> <a href="#castep-inputs">CASTEP inputs</a>, as well as simultaneously creating a supercell, e.g. of 3x2x3 size, run the following:  </p>
-
-<div class="pdoc-code codehilite">
-<pre><span></span><code>python3<span class="w"> </span>inputmaker.py<span class="w"> </span>-castep<span class="w"> </span>-supercell<span class="o">=[</span><span class="m">3</span>,2,3<span class="o">]</span>
-</code></pre>
-</div>
-
-<p>To create <a href="#cp2k-inputs">CP2K inputs</a>, the file structure should have been previously configured, as described in the section <a href="#file-structure">File structure</a>. Then run:  </p>
-
-<div class="pdoc-code codehilite">
-<pre><span></span><code>python3<span class="w"> </span>inputmaker.py<span class="w"> </span>-cp2k
-</code></pre>
-</div>
-
-<h3 id="castep-inputs">CASTEP inputs</h3>
-
-<p>CASTEP <code>*.cell</code> files can be mass-produced by running the script with the <code>-castep</code> flag. The script will then search for all <code>*.cif</code> files on the current path; if none are found, then it will check each subfolder.<br />
-The script will also create a supercell, if the <code>-supercell=[k,l,m]</code> flag is provided, replacing <code>k</code>, <code>l</code>, and <code>m</code> with the desired supercell size (e.g. [3,2,3], etc).<br />
-The outputs are placed in the same folder as the <code>*.cif</code> files, unless the <code>-out</code> flag is used, in which case the outputs are placed in a <code>/out/</code> folder.  </p>
-
-<p>To create the <code>*.cell</code> files:  </p>
-
-<div class="pdoc-code codehilite">
-<pre><span></span><code>python3<span class="w"> </span>inputmaker.py<span class="w"> </span>-castep<span class="w"> </span>-supercell<span class="o">=[</span>k,l,m<span class="o">]</span><span class="w"> </span>-out
-</code></pre>
-</div>
-
-<h3 id="cp2k-inputs">CP2K inputs</h3>
-
-<p>The template for CP2K inputs should contain several keywords, where the text will be replaced. For instance, you need a keyword just before the ABC rows of the <code>&amp;CELL</code> section, which will be replaced by the updated cells. This keyword should be specified on the <code>key_cell</code> variable of the <code>cp2k()</code> function.<br />
-An example of a cell section of a template file:  </p>
-
-<pre><code>&amp;SUBSYS
-    &amp;CELL
-!&lt;keyword-cell&gt;
-        A 1.000000000000000       0.000000000000000       0.000000000000000
-        B 0.000000000000000       1.000000000000000       0.000000000000000
-        C 0.000000000000000       0.000000000000000       1.000000000000000
-        ! Line reserved for debugging, immediatly under cell parameters. DO NOT WRITE HERE.
-
-        !!! Make sure that the following parameters are correct! input-maker does not check them.
-        PERIODIC XYZ
-        MULTIPLE_UNIT_CELL 1 1 1
-    &amp;END CELL
-</code></pre>
-
-<p>The keys are defined on the <code>cp2k()</code> function, as follows:  </p>
-
-<div class="pdoc-code codehilite">
-<pre><span></span><code><span class="c1"># Template files, must be in the same folder as this script:</span>
-<span class="n">inp_template_extension</span> <span class="o">=</span> <span class="s1">&#39;.inp.template&#39;</span> <span class="c1"># CP2K input template</span>
-<span class="n">slurm_template_extension</span> <span class="o">=</span> <span class="s1">&#39;.sh.template&#39;</span> <span class="c1"># Slurm file template</span>
-<span class="c1"># Keywords on the inp template file:</span>
-<span class="n">key_cell</span> <span class="o">=</span> <span class="s1">&#39;!&lt;keyword-cell&gt;&#39;</span> <span class="c1"># Right above the ABC rows of the &amp;CELL section</span>
-<span class="n">key_coordinates</span> <span class="o">=</span> <span class="s1">&#39;!&lt;keyword-coordinates&gt;&#39;</span> <span class="c1"># On the &amp;COORD section </span>
-<span class="n">key_topology_init</span> <span class="o">=</span> <span class="s1">&#39;!&lt;keyword-topology-init&gt;&#39;</span> 
-<span class="n">key_topology_run</span> <span class="o">=</span> <span class="s1">&#39;!&lt;keyword-topology-run&gt;&#39;</span>
-<span class="n">key_topology_end</span> <span class="o">=</span> <span class="s1">&#39;!&lt;keyword-topology-end&gt;&#39;</span>
-<span class="n">key_pdb_filename</span> <span class="o">=</span> <span class="s1">&#39;!&lt;keyword-pdb-filename&gt;&#39;</span> <span class="c1"># &#39;        COORD_FILE_NAME ./dumped.pdb&#39;</span>
-<span class="n">key_psf_filename</span> <span class="o">=</span> <span class="s1">&#39;!&lt;keyword-psf-filename&gt;&#39;</span> <span class="c1"># &#39;        CONN_FILE_NAME ./dumped.psf&#39;</span>
-<span class="n">key_steps</span> <span class="o">=</span> <span class="s1">&#39;!&lt;keyword-steps&gt;&#39;</span> <span class="c1"># Before the number of steps</span>
-<span class="c1"># Keywords on the slurm template file:</span>
-<span class="n">key_jobname</span> <span class="o">=</span> <span class="s1">&#39;&lt;keyword-JOBNAME&gt;&#39;</span>
-<span class="n">key_filename</span> <span class="o">=</span> <span class="s1">&#39;&lt;keyword-FILENAME&gt;&#39;</span>
-</code></pre>
-</div>
-
-<p>Notice that for CP2K inputs, a PDB and a PSF file are required. The PDB file is used to get the coordinates, and the PSF file is used to get the topology. Both files are detected automatically; however, in case the PSF file is not found, the script can create an initial input file so that CP2K can quickly generate it. After that, run again inputmaker and CP2K for a second time, now with the PSF file available. The keywords for the topology section are then used to place the coordinates and the topology in the correct places, as follows:  </p>
-
-<pre><code>!!!  ONLY RUN 1st TIME (without PSF file)  !!!
-!&lt;keyword-topology-init&gt;
-    &amp;COORD
-        SCALED .TRUE.
-!&lt;keyword-coordinates&gt;
-    &amp;END COORD   
-    &amp;TOPOLOGY
-        &amp;generate
-            bondparm covalent 
-            BONDLENGTH_MAX 3.5
-            bondparm_factor 1.0
-            create_molecules .true.
-        &amp;end generate
-        &amp;CENTER_COORDINATES
-        &amp;END CENTER_COORDINATES
-        CONNECTIVITY GENERATE
-        &amp;DUMP_PDB
-        &amp;END
-        &amp;DUMP_PSF
-        &amp;END
-!!!  RUN 2nd time, ONCE YOU HAVE PDB &amp; PSF FILES  !!!
-!&lt;keyword-topology-run&gt;
-    &amp;TOPOLOGY
-        COORD_FILE_FORMAT PDB
-!&lt;keyword-pdb-filename&gt;
-        COORD_FILE_NAME ./dumped.pdb
-        CONNECTIVITY psf
-!&lt;keyword-psf-filename&gt;
-        CONN_FILE_NAME ./dumped.psf
-!&lt;keyword-topology-end&gt;
-    &amp;END TOPOLOGY
-</code></pre>
-
-<h3 id="file-structure">File structure</h3>
-
-<p>Download <code>inputmaker.py</code> and place it near the input template file, in this case, a CP2K input. There should be subfolders with the structural files to create the inputs. The file structure should look like this:  </p>
-
-<pre><code>root_folder
-│
-├── inputmaker.py
-├── sbatch_all.sh
-├── custom_input.inp.template
-├── custom_slurm.sh.template
-│
-├── job_folder_1
-│   ├── structural_file_1.pdb
-│   ├── structural_file_1.psf
-│   └── ...
-├── job_folder_2
-│   ├── structural_file_2.pdb
-│   └── ...
-└── ...
-</code></pre>
-
-<h4 id="optional-reusing-old-cp2k-inputs">Optional: Reusing old CP2K inputs</h4>
-
-<p>You can also reuse old <code>*.inp</code> files, by changing the extension to <code>.inp.old</code>. It will then copy to the template just the ABC rows from the &amp;CELL section, after the keyword.  </p>
-
-<h3 id="sbatching-slurm-files">Sbatch'ing slurm files</h3>
-
-<p>If there is only one <code>*.sh</code> slurm file per folder, you can sbatch' all inputs with the command:  </p>
-
-<div class="pdoc-code codehilite">
-<pre><span></span><code><span class="nb">source</span><span class="w"> </span>sbatch_all.sh
-</code></pre>
-</div>
 </div>
 
                         <input id="mod-inputmaker-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 
                         <label class="view-source-button" for="mod-inputmaker-view-source"><span>View Source</span></label>
 
-                        <div class="pdoc-code codehilite"><pre><span></span><span id="L-1"><a href="#L-1"><span class="linenos"> 1</span></a><span class="sd">&#39;&#39;&#39;</span>
-</span><span id="L-2"><a href="#L-2"><span class="linenos"> 2</span></a><span class="sd">.. include:: ../README.md</span>
-</span><span id="L-3"><a href="#L-3"><span class="linenos"> 3</span></a><span class="sd">&#39;&#39;&#39;</span>
-</span><span id="L-4"><a href="#L-4"><span class="linenos"> 4</span></a>
-</span><span id="L-5"><a href="#L-5"><span class="linenos"> 5</span></a><span class="kn">from</span> <span class="nn">.common</span> <span class="kn">import</span> <span class="o">*</span>
-</span><span id="L-6"><a href="#L-6"><span class="linenos"> 6</span></a><span class="kn">from</span> <span class="nn">.tools</span> <span class="kn">import</span> <span class="o">*</span>
-</span><span id="L-7"><a href="#L-7"><span class="linenos"> 7</span></a><span class="kn">from</span> <span class="nn">.call</span> <span class="kn">import</span> <span class="o">*</span>
-</span><span id="L-8"><a href="#L-8"><span class="linenos"> 8</span></a><span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">castep</span>
-</span><span id="L-9"><a href="#L-9"><span class="linenos"> 9</span></a><span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">cp2k</span>
-</span><span id="L-10"><a href="#L-10"><span class="linenos">10</span></a><span class="c1">#from . import run</span>
+                        <div class="pdoc-code codehilite"><pre><span></span><span id="L-1"><a href="#L-1"><span class="linenos">1</span></a><span class="sd">&#39;&#39;&#39;</span>
+</span><span id="L-2"><a href="#L-2"><span class="linenos">2</span></a><span class="sd">.. include:: ../README.md</span>
+</span><span id="L-3"><a href="#L-3"><span class="linenos">3</span></a><span class="sd">&#39;&#39;&#39;</span>
+</span><span id="L-4"><a href="#L-4"><span class="linenos">4</span></a>
+</span><span id="L-5"><a href="#L-5"><span class="linenos">5</span></a><span class="kn">from</span> <span class="nn">.common</span> <span class="kn">import</span> <span class="o">*</span>
+</span><span id="L-6"><a href="#L-6"><span class="linenos">6</span></a><span class="kn">from</span> <span class="nn">.tools</span> <span class="kn">import</span> <span class="o">*</span>
+</span><span id="L-7"><a href="#L-7"><span class="linenos">7</span></a><span class="kn">from</span> <span class="nn">.call</span> <span class="kn">import</span> <span class="o">*</span>
 </span></pre></div>
 
 
