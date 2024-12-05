@@ -13,7 +13,6 @@ Functions to simplify calling bash scripts and related.
 import subprocess
 import datetime
 import os
-from .common import *
 
 
 def shell(command, cwd=None):

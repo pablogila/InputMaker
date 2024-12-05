@@ -3,7 +3,7 @@
 # Run this script as `source pdoc.sh`.
 
 # Extract the version number from constants.py
-version="$(grep -oP 'version\s*=\s*\K.*' ./inputmaker/common.py | tr -d "'")"
+version="$(grep -oP 'version\s*=\s*\K.*' ./inputmaker/__init__.py | tr -d "'")"
 # Update README.md header with the version number
 sed -i "s/^# InputMaker.*/# InputMaker $version/" README.md
 # Generate the documentation

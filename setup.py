@@ -7,7 +7,7 @@ AUTHOR = 'Pablo Gila-Herranz'
 AUTHOR_EMAIL = 'pgila001@ikasle.ehu.eus'
 
 def get_version():
-    with open('inputmaker/common.py', 'r') as file:
+    with open('inputmaker/__init__.py', 'r') as file:
         content = file.read()
         version_match = re.search(r"version\s*=\s*'([^']+)'", content)
         if version_match:
