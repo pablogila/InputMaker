@@ -1,6 +1,6 @@
 '''
 # Description
-Common functions to manipulate files.
+Functions to manipulate files.
 
 # Index
 - `get()`
@@ -11,7 +11,6 @@ Common functions to manipulate files.
 - `rename_on_subfolders()`
 - `copy_to_subfolders()`
 - `from_template()`
-- `correct_with_dict()`
 
 ---
 '''
@@ -155,27 +154,5 @@ def from_template(template:str, new_file:str, comment:str) -> None:
     lines.insert(0, comment + '\n')
     with open(new_file, 'w') as file:
         file.writelines(lines)
-    return None
-
-
-def correct_with_dict(file:str, fixing_dict:dict) -> None:
-    '''
-    Corrects the given `file` using the `fixing_dict` dictionary.
-    '''
-    file_path = get(file)
-    found_key = False
-    with open(file_path, 'r') as f:
-        lines = f.readlines()
-    for line in lines:
-        if any(key in line for key in fixing_dict.keys()):
-            found_key = True
-            break
-    if found_key:
-        print("Correcting " + file_path + " ...")
-        with open(file_path, 'w') as f:
-            for line in lines:
-                for key, value in fixing_dict.items():
-                    line = line.replace(key, value)
-                f.write(line)
     return None
 

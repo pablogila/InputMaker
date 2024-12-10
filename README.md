@@ -1,4 +1,4 @@
-# InputMaker v2.1.0
+# InputMaker v3.0.0
 This Python3 package allows you to make all kind of text files from a template file, thanks to a rich set of built-in functions.
 
 
@@ -27,4 +27,10 @@ For example, to rename files with a specific extension in all subfolders:
 
 Documentation is available locally on the `docs/inputmaker.html` folder.
 An [online documentation](https://pablogila.github.io/InputMaker/) is also available.
+
+This package contains the following submodules:
+- `InputMaker.file`. Manipulate files.
+- `InputMaker.text`. Read and manipulate text.
+- `InputMaker.extract`. Extract data from raw text strings.
+- `InputMaker.call`. Run bash scripts and related (Linux)
 

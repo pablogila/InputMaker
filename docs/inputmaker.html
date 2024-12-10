@@ -61,7 +61,7 @@
 
             <h2>Contents</h2>
             <ul>
-  <li><a href="#inputmaker-v210">InputMaker v2.1.0</a>
+  <li><a href="#inputmaker-v300">InputMaker v3.0.0</a>
   <ul>
     <li><a href="#installation">Installation</a></li>
     <li><a href="#documentation">Documentation</a></li>
@@ -72,8 +72,8 @@
             <h2>Submodules</h2>
             <ul>
                     <li><a href="inputmaker/call.html">call</a></li>
+                    <li><a href="inputmaker/extract.html">extract</a></li>
                     <li><a href="inputmaker/file.html">file</a></li>
-                    <li><a href="inputmaker/find.html">find</a></li>
                     <li><a href="inputmaker/text.html">text</a></li>
             </ul>
 
@@ -85,7 +85,7 @@
     </ul>
 
 
-            <footer>InputMaker v2.1.0 documentation</footer>
+            <footer>InputMaker v3.0.0 documentation</footer>
 
         <a class="attribution" title="pdoc: Python API documentation generator" href="https://pdoc.dev" target="_blank">
             built with <span class="visually-hidden">pdoc</span><img
@@ -99,7 +99,7 @@
                     <h1 class="modulename">
 inputmaker    </h1>
 
-                        <div class="docstring"><h1 id="inputmaker-v210">InputMaker v2.1.0</h1>
+                        <div class="docstring"><h1 id="inputmaker-v300">InputMaker v3.0.0</h1>
 
 <p>This Python3 package allows you to make all kind of text files from a template file, thanks to a rich set of built-in functions.</p>
 
@@ -134,6 +134,15 @@ For example, to rename files with a specific extension in all subfolders:  </p>
 
 <p>Documentation is available locally on the <code>docs/inputmaker.html</code> folder.
 An <a href="https://pablogila.github.io/InputMaker/">online documentation</a> is also available.</p>
+
+<p>This package contains the following submodules:</p>
+
+<ul>
+<li><code>InputMaker.file</code>. Manipulate files.</li>
+<li><code>InputMaker.text</code>. Read and manipulate text.</li>
+<li><code>InputMaker.extract</code>. Extract data from raw text strings.</li>
+<li><code>InputMaker.call</code>. Run bash scripts and related (Linux)</li>
+</ul>
 </div>
 
                         <input id="mod-inputmaker-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
@@ -146,12 +155,12 @@ An <a href="https://pablogila.github.io/InputMaker/">online documentation</a> is
 </span><span id="L-4"><a href="#L-4"><span class="linenos"> 4</span></a>
 </span><span id="L-5"><a href="#L-5"><span class="linenos"> 5</span></a>
 </span><span id="L-6"><a href="#L-6"><span class="linenos"> 6</span></a><span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">file</span>
-</span><span id="L-7"><a href="#L-7"><span class="linenos"> 7</span></a><span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">text</span>
-</span><span id="L-8"><a href="#L-8"><span class="linenos"> 8</span></a><span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">call</span>
-</span><span id="L-9"><a href="#L-9"><span class="linenos"> 9</span></a><span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">find</span>
+</span><span id="L-7"><a href="#L-7"><span class="linenos"> 7</span></a><span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">call</span>
+</span><span id="L-8"><a href="#L-8"><span class="linenos"> 8</span></a><span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">text</span>
+</span><span id="L-9"><a href="#L-9"><span class="linenos"> 9</span></a><span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">extract</span>
 </span><span id="L-10"><a href="#L-10"><span class="linenos">10</span></a>
 </span><span id="L-11"><a href="#L-11"><span class="linenos">11</span></a>
-</span><span id="L-12"><a href="#L-12"><span class="linenos">12</span></a><span class="n">version</span> <span class="o">=</span> <span class="s1">&#39;v2.1.0&#39;</span>
+</span><span id="L-12"><a href="#L-12"><span class="linenos">12</span></a><span class="n">version</span> <span class="o">=</span> <span class="s1">&#39;v3.0.0&#39;</span>
 </span><span id="L-13"><a href="#L-13"><span class="linenos">13</span></a><span class="sd">&#39;&#39;&#39;Package version, using semantic versioning to indicate breaking changes, as in v&lt;MAJOR&gt;.&lt;MINOR&gt;.&lt;PATCH&gt;.&#39;&#39;&#39;</span>
 </span></pre></div>
 
@@ -160,7 +169,7 @@ An <a href="https://pablogila.github.io/InputMaker/">online documentation</a> is
                 <section id="version">
                     <div class="attr variable">
             <span class="name">version</span>        =
-<span class="default_value">&#39;v2.1.0&#39;</span>
+<span class="default_value">&#39;v3.0.0&#39;</span>
 
         
     </div>

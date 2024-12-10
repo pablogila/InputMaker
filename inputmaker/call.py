@@ -25,6 +25,7 @@ def shell(command, cwd=None):
     print('>>>  ' + command)
     return result
 
+
 def git(path=None) -> None:
     '''Update'''
     if path:

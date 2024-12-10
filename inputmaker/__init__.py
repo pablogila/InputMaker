@@ -4,11 +4,11 @@
 
 
 from . import file
-from . import text
 from . import call
-from . import find
+from . import text
+from . import extract
 
 
-version = 'v2.2.0'
+version = 'v3.0.0'
 '''Package version, using semantic versioning to indicate breaking changes, as in v<MAJOR>.<MINOR>.<PATCH>.'''
 
