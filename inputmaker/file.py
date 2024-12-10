@@ -3,7 +3,7 @@
 Common functions to manipulate files.
 
 # Index
-- `find()`
+- `get()`
 - `copy()`
 - `move()`
 - `remove()`
@@ -21,7 +21,7 @@ import os
 import shutil
 
 
-def find(file:str, extensions=None):
+def get(file:str, extensions=None):
     '''
     Check if the given `file` exists in the currrent working directory
     or in the full path, and returns its full path.
@@ -32,10 +32,10 @@ def find(file:str, extensions=None):
         return file
     elif os.path.isfile(os.path.join(os.getcwd(), file)):
         return os.path.join(os.getcwd(), file)
-    elif os.path.isdir(folder):
-        files = os.listdir(folder)
-    elif os.path.isdir(os.path.join(os.getcwd(), folder)):
-        files = os.listdir(os.path.join(os.getcwd(), folder))
+    elif os.path.isdir(file):
+        files = os.listdir(file)
+    elif os.path.isdir(os.path.join(os.getcwd(), file)):
+        files = os.listdir(os.path.join(os.getcwd(), file))
     else:
         raise FileNotFoundError('Nothing found at ' + file)
     if extensions is None:
@@ -55,7 +55,7 @@ def copy(original_file:str, new_file:str) -> None:
     '''
     Copies the content of `original_file` to `new_file`.
     '''
-    original_file_path = find(original_file)
+    original_file_path = get(original_file)
     file = shutil.copy(original_file_path, new_file)
     return None
 
@@ -64,7 +64,7 @@ def move(original_file:str, new_file:str) -> None:
     '''
     Moves `original_file` to `new_file`.
     '''
-    original_file_path = find(original_file)
+    original_file_path = get(original_file)
     file = shutil.move(original_file_path, new_file)
     return None
 
@@ -73,7 +73,7 @@ def remove(file:str) -> None:
     '''
     Removes the given `file`.
     '''
-    file_path = find(file)
+    file_path = get(file)
     shutil.rmtree(file_path)
     return None
 
@@ -130,7 +130,7 @@ def copy_to_subfolders(folder=None, extension:str=None, strings_to_delete:list=[
     '''
     if folder is None:
         folder = os.getcwd()
-    old_files = find(folder, extension)
+    old_files = get(folder, extension)
     if old_files is None:
         raise ValueError('No ' + extension + ' files found in path!')
     for old_file in old_files:
@@ -162,7 +162,7 @@ def correct_with_dict(file:str, fixing_dict:dict) -> None:
     '''
     Corrects the given `file` using the `fixing_dict` dictionary.
     '''
-    file_path = find(file)
+    file_path = get(file)
     found_key = False
     with open(file_path, 'r') as f:
         lines = f.readlines()

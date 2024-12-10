@@ -22,7 +22,7 @@ setup(
         description=DESCRIPTION,
         long_description=LONG_DESCRIPTION,
         packages=['inputmaker'],
-        install_requires=['ase'],
+        install_requires=[],
         license='AGPL-3.0',
         keywords=['python', 'inputmaker', 'DFT', 'Density Functional Theory', 'MD', 'Molecular Dynamics'],
         classifiers= [
