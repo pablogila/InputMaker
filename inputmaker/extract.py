@@ -16,53 +16,52 @@ WARNING: These functions are yet to be properly implemented.
 import re
 
 
-def number(string:str, name:str) -> float:
+def number(text:str, name:str='') -> float:
     '''
-    Extracts the float value of a given `name` variable from a raw `string`.
+    Extracts the float value of a given `name` variable from a raw `text`.
     '''
-    if string == None:
+    if text == None:
         return None
-    pattern = re.compile(name + r'\s*=?\s*(-?\d+(?:\.\d+)?(?:[eE][+\-]?\d+)?)')
-    match = pattern.search(string)
+    pattern = re.compile(rf"{name}\s*=?\s*(-?\d+(?:\.\d+)?(?:[eE][+\-]?\d+)?)")
+    match = pattern.search(text)
     if match:
         return float(match.group(1))
-    else:
-        return None
+    return text
     
 
-def string(string:str, name:str, remove_commas:bool=False) -> str:
+def string(text:str, name:str, remove_commas:bool=False) -> str:
     '''
-    Extracts the `string` value of a given `name` variable from a raw string.
+    Extracts the `text` value of a given `name` variable from a raw string.
     If `remove_commas=True` and the value is between commas, it is returned without said commas.
-    By default, `remove_commas=False`.
+    By default, `remove_commas=False`.\n
+    Example:
+    ```
+    " blabla name = 'value' "
+    > 'value'
+    ```
+    > TO - FIX
     '''
-    if string == None:
-        return None
-    if remove_commas:
-        pattern = re.compile(name + r"\s*(=)?\s*['\"](.*?)(?=['\"]|$)")
-        match = pattern.search(string)
-        if match:
-            return match.group(2).strip()
-    else:
-        pattern = re.compile(name + r"\s*=\s*(\S.*)?$")
-        match = pattern.search(string)
-        if match:
-            return match.group(1).strip()
-    if not match:
-        return None
+    pattern = re.compile(rf"{name}\s*(:|=)?\s*['\"](.*?)(?=['\"]|$).*")
+    match = re.search(pattern, text)
+    if match:
+        value = match.group(1)
+        if remove_commas:
+            value = value.strip(",")
+        return value
+    return text
 
 
-def column(string:str, column:int) -> float:
+def column(text:str, column:int) -> float:
     '''
     Extracts the desired float `column` of a given `string`.
     '''
-    if string is None:
+    if text is None:
         return None
-    columns = string.split()
+    columns = text.split()
     pattern = r'(-?\d+(?:\.\d+)?(?:[eE][+\-]?\d+)?)'
     if column < len(columns):
         match = re.match(pattern, columns[column])
         if match:
             return float(match.group(1))
-    return None
+    return text
 

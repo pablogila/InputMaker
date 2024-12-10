@@ -20,34 +20,39 @@ import os
 import shutil
 
 
-def get(file:str, extensions=None):
+def get(file:str, filters=None, only_filenames:bool=False):
     '''
     Check if the given `file` exists in the currrent working directory
-    or in the full path, and returns its full path.
-    If the provided string is a directory, returns a list of files inside it.
-    In this case, the listed files are filtered by the given `extensions` if provided.
+    or in the full path, and returns its full path as a **string**.\n
+    If the provided string is a directory, returns a **list** of files inside it.
+    In this case, the listed files are filtered by the given `filters` if provided.
+    By default, the full file paths will be included in the list.
+    To return a list with only the file names, set `only_filenames=True`. 
     '''
     if os.path.isfile(file):
-        return file
-    elif os.path.isfile(os.path.join(os.getcwd(), file)):
-        return os.path.join(os.getcwd(), file)
+        return os.path.abspath(file)
     elif os.path.isdir(file):
+        file = os.path.abspath(file)
         files = os.listdir(file)
-    elif os.path.isdir(os.path.join(os.getcwd(), file)):
-        files = os.listdir(os.path.join(os.getcwd(), file))
     else:
         raise FileNotFoundError('Nothing found at ' + file)
-    if extensions is None:
-        return files
-    else:
+    # Apply filters or not
+    if filters is not None:
         target_files = []
-        if not isinstance(extensions, list):
-            extensions = [extensions]
-        for extension in extensions:
-            for file in files:
-                if file.endswith(extension):
-                    target_files.append(file)
-        return target_files
+        if not isinstance(filters, list):
+            filters = [filters]
+        for filter_i in filters:
+            for f in files:
+                if filter_i in f:
+                    target_files.append(f)
+        files = target_files
+    # Return file names or file paths
+    if not only_filenames:
+        filepaths = []
+        for f in files:
+            filepaths.append(os.path.join(file, f))
+        files = filepaths
+    return files
 
 
 def copy(original_file:str, new_file:str) -> None:
@@ -139,7 +144,7 @@ def copy_to_subfolders(folder=None, extension:str=None, strings_to_delete:list=[
         path = new_file.replace(extension, '')
         os.makedirs(path)
         new_file_path = path + '/' + new_file
-        copy_file(old_file, new_file_path)
+        copy(old_file, new_file_path)
     return None
 
 

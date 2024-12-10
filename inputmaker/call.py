@@ -12,6 +12,7 @@ Functions to simplify calling bash scripts and related.
 
 import subprocess
 import datetime
+import sys
 import os
 
 
@@ -50,4 +51,14 @@ def git(path=None) -> None:
         raise RuntimeError("Git push failed. Check it manually...")
     print("Git updated!")
     return None
+
+
+def here():
+    '''
+    Run from the same directory as the current script, with `inputmaker.here()`.
+    Useful to run scripts from the VSCode terminal, etc.
+    '''
+    caller = os.path.dirname(os.path.abspath(os.path.realpath(sys.argv[0])))
+    os.chdir(caller)
+    return caller
 

@@ -1,4 +1,4 @@
-# InputMaker v3.0.0
+# InputMaker v3.0.1
 This Python3 package allows you to make all kind of text files from a template file, thanks to a rich set of built-in functions.
 
 
