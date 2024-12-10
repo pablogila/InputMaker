@@ -32,7 +32,7 @@ def line(keyword:str, file:str, stop_at:int=0, lines_below:int=0):
     matches = []
     with open(file_path, 'r+b') as f:
         mm = mmap.mmap(f.fileno(), 0)
-        # Determine search direction and starting index
+
         if stop_at < 0:
             start_index = len(mm) - 1
             step = -1
@@ -41,16 +41,35 @@ def line(keyword:str, file:str, stop_at:int=0, lines_below:int=0):
             step = 1
         found_count = 0
         while 0 <= start_index < len(mm) and found_count < abs(stop_at):
-            # Find the next match based on the search direction
+
             match_start = mm.rfind(keyword.encode(), 0, start_index) if step < 0 else mm.find(keyword.encode(), start_index)
             if match_start == -1:
                 break
-            # Extract the matched line and append it to the results
+
             match_end = mm.find(b'\n', match_start)
-            print(match_start, match_end)
-            match_line = mm[match_start:match_end].decode()
-            matches.append(match_line)
-            # Update the search index to avoid repeated matches
+            match_end = match_end if match_end != -1 else len(mm)
+
+            # Handle lines_below functionality
+            ##############  THIS DOES NOT WORK
+            if lines_below > 0:
+                extra_lines_end = match_end
+                for _ in range(lines_below):
+                    extra_lines_end = mm.find(b'\n', extra_lines_end + 1)
+                    if extra_lines_end == -1:
+                        extra_lines_end = len(mm)
+                        break
+                match_end = extra_lines_end
+            elif lines_below < 0:
+                extra_lines_start = line_start
+                for _ in range(abs(lines_below)):
+                    extra_lines_start = mm.rfind(b'\n', 0, extra_lines_start - 1)
+                    if extra_lines_start == -1:
+                        extra_lines_start = 0
+                        break
+                line_start = extra_lines_start
+                #############################
+
             start_index = match_start - 1 if step < 0 else match_end + 1
             found_count += 1
     return matches
+
