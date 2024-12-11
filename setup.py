@@ -1,13 +1,13 @@
 from setuptools import setup
 import re
 
-DESCRIPTION = 'InputMaker'
-LONG_DESCRIPTION = 'Tool to assist in the creation of input files for several ab-initio codes.'
+DESCRIPTION = 'Thoth'
+LONG_DESCRIPTION = "'Text Handling & Optimization Toolkit Helper', or Thoth, is a tool to assist in the creation, modification and analysis of text files, with a special focus in (but not limited to) ab-initio calculations."
 AUTHOR = 'Pablo Gila-Herranz'
 AUTHOR_EMAIL = 'pgila001@ikasle.ehu.eus'
 
 def get_version():
-    with open('inputmaker/__init__.py', 'r') as file:
+    with open('thoth/__init__.py', 'r') as file:
         content = file.read()
         version_match = re.search(r"version\s*=\s*'([^']+)'", content)
         if version_match:
@@ -24,7 +24,7 @@ setup(
         packages=['inputmaker'],
         install_requires=[],
         license='AGPL-3.0',
-        keywords=['python', 'inputmaker', 'DFT', 'Density Functional Theory', 'MD', 'Molecular Dynamics'],
+        keywords=['python', 'thoth', 'text', 'inputmaker', 'DFT', 'Density Functional Theory', 'MD', 'Molecular Dynamics'],
         classifiers= [
             "Development Status :: 5 - Production/Stable",
             "Intended Audience :: Science/Research",

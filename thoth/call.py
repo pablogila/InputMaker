@@ -5,6 +5,7 @@ Functions to simplify calling bash scripts and related.
 # Index
 - `shell()`
 - `git()`
+- `here()`
 
 ---
 '''
@@ -42,7 +43,7 @@ def git(path=None) -> None:
             raise RuntimeError("Changes detected in the remote repository. Check it manually...")
     # Stage and commit changes
     shell("git add .")
-    commit_result = shell(f'git commit -m "Automatic push on {date} with InputMaker {version}"')
+    commit_result = shell(f'git commit -m "Automatic push on {date} with Thoth {version}"')
     if commit_result.returncode != 0:
         raise RuntimeError("Git commit failed. Check it manually...")
     # Push changes to the remote repository
@@ -55,7 +56,7 @@ def git(path=None) -> None:
 
 def here():
     '''
-    Run from the same directory as the current script, with `inputmaker.here()`.
+    Run from the same directory as the current script, with `thoth.here()`.
     Useful to run scripts from the VSCode terminal, etc.
     '''
     caller = os.path.dirname(os.path.abspath(os.path.realpath(sys.argv[0])))

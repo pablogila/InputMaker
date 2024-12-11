@@ -2,7 +2,7 @@
 # Description
 Functions to extract data from raw text strings.
 
-WARNING: These functions are yet to be properly implemented.
+> TODO: Update from the code in my laptop!!
 
 # Index
 - `number()`
@@ -34,12 +34,7 @@ def string(text:str, name:str, remove_commas:bool=False) -> str:
     Extracts the `text` value of a given `name` variable from a raw string.
     If `remove_commas=True` and the value is between commas, it is returned without said commas.
     By default, `remove_commas=False`.\n
-    Example:
-    ```
-    " blabla name = 'value' "
-    > 'value'
-    ```
-    > TO - FIX
+    > TODO: Update function with what I coded the other day in my laptop!
     '''
     pattern = re.compile(rf"{name}\s*(:|=)?\s*['\"](.*?)(?=['\"]|$).*")
     match = re.search(pattern, text)

@@ -152,6 +152,7 @@ def from_template(template:str, new_file:str, comment:str) -> None:
     '''
     Same as `copy_file`, but adds a `comment`
     at the beginning of the new file.
+    > TODO: Update to a more memory-friendly approach, such as mmap.
     '''
     copy(template, new_file)
     with open(new_file, 'r') as file:

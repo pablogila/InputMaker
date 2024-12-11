@@ -13,6 +13,8 @@ Functions to read and manipulate text.
 - `delete_between()`
 - `correct_with_dict()`
 
+> TODO: Update all functions to mmap for faster processing.
+
 ---
 '''
 
@@ -33,7 +35,8 @@ def find(keyword:str, file:str, number_of_matches:int=0, additional_lines:int=0,
     2 to return the found line plus two additional lines below, etc.
     Negative values return the specified number of lines before the target line.
     The original ordering from the file is preserved.
-    Defaults to `additional_lines=0`, only returning the target line.
+    Defaults to `additional_lines=0`, only returning the target line.\n
+    > TODO: for number_of_matches == 0, just use mmap.findall() or rfindall()
     '''
     file_path = get(file)
     matches = []
@@ -202,7 +205,7 @@ def replace_under(text:str, keyword:str, file:str) -> None:
     '''
     Replaces the lines under the first occurrence of the `keyword`
     in the given `filename` with the given `text` string.
-    > TO-DO: IN THE FUTURE SHOULD BE POSITION-AGNOSTIC. The keyword currently must be at the beginning.
+    > TODO: IN THE FUTURE SHOULD BE POSITION-AGNOSTIC. The keyword currently must be at the beginning of the line.
     ```
     line1
     keyword line2
@@ -228,7 +231,7 @@ def replace_under(text:str, keyword:str, file:str) -> None:
 def delete_under(keyword:str, file:str) -> None:
     '''
     Deletes the lines under the first occurrence of the `keyword` in the given `file`.
-    > TO-DO: IN THE FUTURE SHOULD BE POSITION-AGNOSTIC
+    > TODO: IN THE FUTURE SHOULD BE POSITION-AGNOSTIC
     ```
     lines...
     keyword
