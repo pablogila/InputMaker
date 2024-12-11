@@ -15,13 +15,13 @@ def get_version():
         raise RuntimeError("Unable to find version.")
 
 setup(
-        name="inputmaker", 
+        name="thoth", 
         version=get_version(),
         author=AUTHOR,
         author_email=AUTHOR_EMAIL,
         description=DESCRIPTION,
         long_description=LONG_DESCRIPTION,
-        packages=['inputmaker'],
+        packages=['thoth'],
         install_requires=[],
         license='AGPL-3.0',
         keywords=['python', 'thoth', 'text', 'inputmaker', 'DFT', 'Density Functional Theory', 'MD', 'Molecular Dynamics'],
