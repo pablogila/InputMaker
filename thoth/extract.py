@@ -2,8 +2,6 @@
 # Description
 Functions to extract data from raw text strings.
 
-> TODO: Update from the code in my laptop!!
-
 # Index
 - `number()`
 - `string()`
@@ -18,32 +16,41 @@ import re
 
 def number(text:str, name:str='') -> float:
     '''
-    Extracts the float value of a given `name` variable from a raw `text`.
+    Extracts the float value of a given `name` variable from a raw `text`.\n
+    Example:
+    ```python
+    >>> text = 'energy =   500.0 Ry'
+    >>> thoth.extract.number(text, 'energy')
+    500.0  # float output
+    ```
     '''
     if text == None:
         return None
-    pattern = re.compile(rf"{name}\s*=?\s*(-?\d+(?:\.\d+)?(?:[eE][+\-]?\d+)?)")
+    pattern = re.compile(rf"{name}\s*[:=]?\s*(-?\d+(?:\.\d+)?(?:[eEdD][+\-]?\d+)?)")
     match = pattern.search(text)
     if match:
         return float(match.group(1))
-    return text
+    return None
     
 
-def string(text:str, name:str, remove_commas:bool=False) -> str:
+def string(text:str, name:str='', stop:str='') -> str:
     '''
     Extracts the `text` value of a given `name` variable from a raw string.
-    If `remove_commas=True` and the value is between commas, it is returned without said commas.
-    By default, `remove_commas=False`.\n
-    > TODO: Update function with what I coded the other day in my laptop!
+    Stops before an optional `stop` string.\n
+    Example:
+    ```python
+    >>> text = 'energy =   500.0 Ry were calculated'
+    >>> thoth.extract.string(text, 'energy', 'were')
+    '500.0 Ry '  # String output
+    ```
     '''
-    pattern = re.compile(rf"{name}\s*(:|=)?\s*['\"](.*?)(?=['\"]|$).*")
+    pattern = re.compile(rf"{name}\s*[:=]?\s*(.*)")
+    if stop:
+        pattern = re.compile(rf"{name}\s*[:=]?\s*(.*)(?={stop})")
     match = re.search(pattern, text)
     if match:
-        value = match.group(1)
-        if remove_commas:
-            value = value.strip(",")
-        return value
-    return text
+        return match.group(1)
+    return None
 
 
 def column(text:str, column:int) -> float:
@@ -58,5 +65,5 @@ def column(text:str, column:int) -> float:
         match = re.match(pattern, columns[column])
         if match:
             return float(match.group(1))
-    return text
+    return None
 

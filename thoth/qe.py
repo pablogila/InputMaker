@@ -1,10 +1,11 @@
 '''
 # Description
-Functions to work with [Quantum ESPRESSO](https://www.quantum-espresso.org/).
+Functions to work with [Quantum ESPRESSO](https://www.quantum-espresso.org/) calculation files.
 
 # Index
-- `readout()`
-- `readin()`
+- `read_in()`
+- `read_out()`
+- `read_dir()`
 
 ---
 '''
@@ -16,7 +17,38 @@ from .text import find
 from .extract import number, string
 
 
-def readout(file) -> pd.DataFrame:
+def read_in(file):
+    '''
+    Reads an input `file` from Quantum ESPRESSO,
+    returning a Pandas dataframe with the input values used.
+    '''
+    data = {}
+    lines = find('=', file)
+    for line in lines:
+        line.strip()
+        if line.startswith('!'):
+            continue
+        var, value = line.split('=', 1)
+        var = var.strip()
+        value = value.strip()
+        try:
+            value_float = value.replace('d', 'e')
+            value_float = value_float.replace('D', 'e')
+            value_float = value_float.replace('E', 'e')
+            value_float = float(value_float)
+            value = value_float
+        except ValueError:
+            pass # Then it is a string
+        data[var] = value
+    # Get values that are not expressed with a '=' sign
+    k_points = find('K_POINTS', file, -1, 1, True)
+    if k_points:
+        k_points = k_points[1].strip()
+        data['K_POINTS'] = k_points    
+    return pd.DataFrame.from_dict(data)
+
+
+def read_out(file) -> pd.DataFrame:
     '''
     Reads an output `file` from Quantum ESPRESSO,
     returning a Pandas DataFrame with the following columns:
@@ -44,7 +76,7 @@ def readout(file) -> pd.DataFrame:
     maxiter_reached_line = find(maxiter_reached_key, file, -1)
     error_line           = find(error_key, file, -1, 1, True)
 
-    enery: float = None
+    energy: float = None
     force: float = None
     scf: float = None
     time: str = None
@@ -86,11 +118,28 @@ def readout(file) -> pd.DataFrame:
     return pd.DataFrame.from_dict(output)
 
 
-def readin(file):
+def read_dir(folder, input='.in', output='.out'):
     '''
-    Reads an input `file` from Quantum ESPRESSO,
-    returning a Pandas dataframe with the input values used.
-    > TODO: IMPLEMENT THIS
+    Takes a `folder` containing a Quantum ESPRESSO calculation,
+    and returns a Pandas DataFrame containing the input parameters and output results.
+    The `input` and `output` files are determined automatically,
+    but must be specified if more than one file ends with `.in` or `.out`.
+    To extract values only from the input or only from the output, check `read_in` and `read_out`.
     '''
-    pass
+    input_file = get(folder, input)
+    output_file = get(folder, output)
+    if not input_file:
+        raise FileNotFoundError(f'Input file missing at {folder}')
+    if not output_file:
+        raise FileNotFoundError(f'Output file missing at {folder}')
+    if len(input_file) > 1:
+        raise ValueError(f'Please specify an input name! More than 1 input file found in {folder}')
+    if len(output_file) > 1:
+        raise ValueError(f'Please specify an output name! More than 1 output file found in {folder}')
+    input_file = input_file[0]
+    output_file = output_file[0]
+    df_in = read_in(input_file)
+    df_out = read_out(output_file)
+    df = pd.merge(df_in, df_out)
+    return df
 

@@ -1,4 +1,4 @@
-# Thoth v4.0.1
+# Thoth v4.2.0
 
 Welcome to the '**T**ext **H**andling & **O**ptimization **T**oolkit **H**elper'; or just **Thoth**, as the Egyptian god of writing, wisdom and magic.  
 

@@ -46,7 +46,7 @@ from . import text
 from . import extract
 
 
-version = 'v4.1.0'
+version = 'v4.2.0'
 '''
 Package version, using semantic versioning to indicate breaking changes,
 as in v<MAJOR>.<MINOR>.<PATCH>.
