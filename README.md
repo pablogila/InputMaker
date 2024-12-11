@@ -31,7 +31,10 @@ This package contains the following submodules:
 - [file](https://pablogila.github.io/Thoth/thoth/file.html). Manipulate files.
 - [text](https://pablogila.github.io/Thoth/thoth/text.html). Read and manipulate text.
 - [extract](https://pablogila.github.io/Thoth/thoth/extract.html). Extract data from raw text strings.
-- [call](https://pablogila.github.io/Thoth/thoth/call.html). Run bash scripts and related (Linux)
+- [call](https://pablogila.github.io/Thoth/thoth/call.html). Run bash scripts and related.
+
+Additionally, some specific modules for use in tandem with ab-initio codes are included:
+- [qe](https://pablogila.github.io/Thoth/thoth/call.html). Specific module for Quantum ESPRESSO.
 
 The documentation can be compiled automatically using [pdoc](https://pdoc.dev/), by running:
 ```shell

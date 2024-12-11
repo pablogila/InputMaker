@@ -13,6 +13,9 @@ This package contains the following submodules:
 - `thoth.extract`. Extract data from raw text strings
 - `thoth.call`. Run bash scripts and related
 
+Additionally, some specific modules for use in tandem with ab-initio codes are included:
+- `thoth.qe`. Specific module for Quantum ESPRESSO.
+
 The documentation can be compiled automatically using [pdoc](https://pdoc.dev/), by running:
 ```shell
 source pdoc.sh
@@ -43,7 +46,7 @@ from . import text
 from . import extract
 
 
-version = 'v4.0.1'
+version = 'v4.1.0'
 '''
 Package version, using semantic versioning to indicate breaking changes,
 as in v<MAJOR>.<MINOR>.<PATCH>.

@@ -22,7 +22,7 @@ setup(
         description=DESCRIPTION,
         long_description=LONG_DESCRIPTION,
         packages=['thoth'],
-        install_requires=[],
+        install_requires=['pandas'],
         license='AGPL-3.0',
         keywords=['python', 'thoth', 'text', 'inputmaker', 'DFT', 'Density Functional Theory', 'MD', 'Molecular Dynamics'],
         classifiers= [
