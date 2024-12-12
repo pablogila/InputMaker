@@ -86,7 +86,7 @@
     </ul>
 
 
-            <footer>Thoth v4.2.0 documentation</footer>
+            <footer>Thoth v4.3.0 documentation</footer>
 
         <a class="attribution" title="pdoc: Python API documentation generator" href="https://pdoc.dev" target="_blank">
             built with <span class="visually-hidden">pdoc</span><img
@@ -175,14 +175,18 @@
 </span><span id="L-54"><a href="#L-54"><span class="linenos">54</span></a>    <span class="k">return</span> <span class="kc">None</span>
 </span><span id="L-55"><a href="#L-55"><span class="linenos">55</span></a>
 </span><span id="L-56"><a href="#L-56"><span class="linenos">56</span></a>
-</span><span id="L-57"><a href="#L-57"><span class="linenos">57</span></a><span class="k">def</span> <span class="nf">here</span><span class="p">():</span>
+</span><span id="L-57"><a href="#L-57"><span class="linenos">57</span></a><span class="k">def</span> <span class="nf">here</span><span class="p">(</span><span class="n">run_here</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 </span><span id="L-58"><a href="#L-58"><span class="linenos">58</span></a><span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
-</span><span id="L-59"><a href="#L-59"><span class="linenos">59</span></a><span class="sd">    Run from the same directory as the current script, with `thoth.here()`.</span>
-</span><span id="L-60"><a href="#L-60"><span class="linenos">60</span></a><span class="sd">    Useful to run scripts from the VSCode terminal, etc.</span>
-</span><span id="L-61"><a href="#L-61"><span class="linenos">61</span></a><span class="sd">    &#39;&#39;&#39;</span>
-</span><span id="L-62"><a href="#L-62"><span class="linenos">62</span></a>    <span class="n">caller</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">])))</span>
-</span><span id="L-63"><a href="#L-63"><span class="linenos">63</span></a>    <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">caller</span><span class="p">)</span>
-</span><span id="L-64"><a href="#L-64"><span class="linenos">64</span></a>    <span class="k">return</span> <span class="n">caller</span>
+</span><span id="L-59"><a href="#L-59"><span class="linenos">59</span></a><span class="sd">    Returns the directory where the current script lies.</span>
+</span><span id="L-60"><a href="#L-60"><span class="linenos">60</span></a><span class="sd">    By default, it also runs the rest of the script from said directory;</span>
+</span><span id="L-61"><a href="#L-61"><span class="linenos">61</span></a><span class="sd">    This is really useful to run scripts from the VSCode terminal, etc.</span>
+</span><span id="L-62"><a href="#L-62"><span class="linenos">62</span></a><span class="sd">    You might want to override this behaviour if you just want to know the path of the current script;</span>
+</span><span id="L-63"><a href="#L-63"><span class="linenos">63</span></a><span class="sd">    to do so, set `run_here=False`.</span>
+</span><span id="L-64"><a href="#L-64"><span class="linenos">64</span></a><span class="sd">    &#39;&#39;&#39;</span>
+</span><span id="L-65"><a href="#L-65"><span class="linenos">65</span></a>    <span class="n">caller</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">])))</span>
+</span><span id="L-66"><a href="#L-66"><span class="linenos">66</span></a>    <span class="k">if</span> <span class="n">run_here</span><span class="p">:</span>
+</span><span id="L-67"><a href="#L-67"><span class="linenos">67</span></a>        <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">caller</span><span class="p">)</span>
+</span><span id="L-68"><a href="#L-68"><span class="linenos">68</span></a>    <span class="k">return</span> <span class="n">caller</span>
 </span></pre></div>
 
 
@@ -265,25 +269,32 @@ Returns the result of the command used.</p>
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">here</span><span class="signature pdoc-code condensed">(<span class="return-annotation">):</span></span>
+        <span class="name">here</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">run_here</span><span class="o">=</span><span class="kc">True</span></span><span class="return-annotation">):</span></span>
 
                 <label class="view-source-button" for="here-view-source"><span>View Source</span></label>
 
     </div>
     <a class="headerlink" href="#here"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="here-58"><a href="#here-58"><span class="linenos">58</span></a><span class="k">def</span> <span class="nf">here</span><span class="p">():</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="here-58"><a href="#here-58"><span class="linenos">58</span></a><span class="k">def</span> <span class="nf">here</span><span class="p">(</span><span class="n">run_here</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 </span><span id="here-59"><a href="#here-59"><span class="linenos">59</span></a><span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
-</span><span id="here-60"><a href="#here-60"><span class="linenos">60</span></a><span class="sd">    Run from the same directory as the current script, with `thoth.here()`.</span>
-</span><span id="here-61"><a href="#here-61"><span class="linenos">61</span></a><span class="sd">    Useful to run scripts from the VSCode terminal, etc.</span>
-</span><span id="here-62"><a href="#here-62"><span class="linenos">62</span></a><span class="sd">    &#39;&#39;&#39;</span>
-</span><span id="here-63"><a href="#here-63"><span class="linenos">63</span></a>    <span class="n">caller</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">])))</span>
-</span><span id="here-64"><a href="#here-64"><span class="linenos">64</span></a>    <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">caller</span><span class="p">)</span>
-</span><span id="here-65"><a href="#here-65"><span class="linenos">65</span></a>    <span class="k">return</span> <span class="n">caller</span>
+</span><span id="here-60"><a href="#here-60"><span class="linenos">60</span></a><span class="sd">    Returns the directory where the current script lies.</span>
+</span><span id="here-61"><a href="#here-61"><span class="linenos">61</span></a><span class="sd">    By default, it also runs the rest of the script from said directory;</span>
+</span><span id="here-62"><a href="#here-62"><span class="linenos">62</span></a><span class="sd">    This is really useful to run scripts from the VSCode terminal, etc.</span>
+</span><span id="here-63"><a href="#here-63"><span class="linenos">63</span></a><span class="sd">    You might want to override this behaviour if you just want to know the path of the current script;</span>
+</span><span id="here-64"><a href="#here-64"><span class="linenos">64</span></a><span class="sd">    to do so, set `run_here=False`.</span>
+</span><span id="here-65"><a href="#here-65"><span class="linenos">65</span></a><span class="sd">    &#39;&#39;&#39;</span>
+</span><span id="here-66"><a href="#here-66"><span class="linenos">66</span></a>    <span class="n">caller</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">])))</span>
+</span><span id="here-67"><a href="#here-67"><span class="linenos">67</span></a>    <span class="k">if</span> <span class="n">run_here</span><span class="p">:</span>
+</span><span id="here-68"><a href="#here-68"><span class="linenos">68</span></a>        <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">caller</span><span class="p">)</span>
+</span><span id="here-69"><a href="#here-69"><span class="linenos">69</span></a>    <span class="k">return</span> <span class="n">caller</span>
 </span></pre></div>
 
 
-            <div class="docstring"><p>Run from the same directory as the current script, with <code><a href="#here">thoth.here()</a></code>.
-Useful to run scripts from the VSCode terminal, etc.</p>
+            <div class="docstring"><p>Returns the directory where the current script lies.
+By default, it also runs the rest of the script from said directory;
+This is really useful to run scripts from the VSCode terminal, etc.
+You might want to override this behaviour if you just want to know the path of the current script;
+to do so, set <code>run_here=False</code>.</p>
 </div>
 
 

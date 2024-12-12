@@ -45,6 +45,7 @@ from . import file
 from . import call
 from . import text
 from . import extract
+from . import qe
 
 
 version = 'v4.3.0'

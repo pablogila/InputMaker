@@ -41,7 +41,7 @@ def get(file:str, filters=None) -> str:
     if len(files) == 1:
         return files[0]
     elif len(files) == 0:
-        raise FileNotFoundError('The directory is empty: ' + file)
+        raise FileNotFoundError('The following directory is empty (maybe due to the filters):' + file)
     else:
         raise FileExistsError(f'More than one file found, please apply a more strict filter. Found:\n{files}')
 
@@ -49,7 +49,6 @@ def get(file:str, filters=None) -> str:
 def get_list(folder:str, filters=None, abspath:bool=True) -> list:
     '''
     Takes a `folder`, filters the content with the `filters` keyword(s) if provided, and returns a list with the matches.
-    For example, to return only file directories, use `filters='/'`, etc.
     The full paths are returned by default; to get only the base names, set `abspath=False`.
     '''
     if os.path.isfile(folder):
