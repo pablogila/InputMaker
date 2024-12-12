@@ -4,6 +4,7 @@ Functions to manipulate files.
 
 # Index
 - `get()`
+- `get_list()`
 - `copy()`
 - `move()`
 - `remove()`
@@ -20,37 +21,57 @@ import os
 import shutil
 
 
-def get(file:str, filters=None, only_filenames:bool=False):
+def get(file:str, filters=None) -> str:
     '''
     Check if the given `file` exists in the currrent working directory
-    or in the full path, and returns its full path as a **string**.\n
-    If the provided string is a directory, returns a **list** of files inside it.
-    In this case, the listed files are filtered by the given `filters` if provided.
-    By default, the full file paths will be included in the list.
-    To return a list with only the file names, set `only_filenames=True`. 
+    or in the full path, and returns its full path as a string.\n
+
+    If the provided string is a directory, it checks the files inside it.
+    if there is only one file inside, it returns said file;
+    if there are more files, it tries to filter them with the `filters` keyword(s) to return a single file.
+    If this fails, try using more strict filers to return a single file.
     '''
     if os.path.isfile(file):
         return os.path.abspath(file)
     elif os.path.isdir(file):
-        file = os.path.abspath(file)
-        files = os.listdir(file)
+        files = get_list(file, filters, abspath=True)
     else:
         raise FileNotFoundError('Nothing found at ' + file)
+    # Return a single file
+    if len(files) == 1:
+        return files[0]
+    elif len(files) == 0:
+        raise FileNotFoundError('The directory is empty: ' + file)
+    else:
+        raise FileExistsError(f'More than one file found, please apply a more strict filter. Found:\n{files}')
+
+
+def get_list(folder:str, filters=None, abspath:bool=True) -> list:
+    '''
+    Takes a `folder`, filters the content with the `filters` keyword(s) if provided, and returns a list with the matches.
+    For example, to return only file directories, use `filters='/'`, etc.
+    The full paths are returned by default; to get only the base names, set `abspath=False`.
+    '''
+    if os.path.isfile(folder):
+        folder = os.path.dirname(folder)
+    if not os.path.isdir(folder):
+        raise FileNotFoundError('Nothing found at ' + folder)
+    folder = os.path.abspath(folder)
+    files = os.listdir(folder)
     # Apply filters or not
     if filters is not None:
         target_files = []
         if not isinstance(filters, list):
-            filters = [filters]
+            filters = [str(filters)]
         for filter_i in filters:
             for f in files:
                 if filter_i in f:
                     target_files.append(f)
         files = target_files
-    # Return file names or file paths
-    if not only_filenames:
+    if abspath:
         filepaths = []
         for f in files:
-            filepaths.append(os.path.join(file, f))
+            filepaths.append(os.path.join(folder, f))
         files = filepaths
     return files
 
@@ -134,7 +155,7 @@ def copy_to_subfolders(folder=None, extension:str=None, strings_to_delete:list=[
     '''
     if folder is None:
         folder = os.getcwd()
-    old_files = get(folder, extension)
+    old_files = get_list(folder, extension)
     if old_files is None:
         raise ValueError('No ' + extension + ' files found in path!')
     for old_file in old_files:

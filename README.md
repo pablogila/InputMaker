@@ -1,10 +1,10 @@
 # Thoth v4.2.0
 
-Welcome to the '**T**ext **H**andling & **O**ptimization **T**oolkit **H**elper'; or just **Thoth**, as the Egyptian god of writing, wisdom and magic.  
+Welcome to **T**he **H**elpful & **O**ptimized **T**ext **H**elper; or just **Thoth**, as the Egyptian god of writing, wisdom and magic.  
 
-This Python3 package allows you to create, edit and analyse all kind of text files, with a special focus to ab-initio calculations. Formally known as InputMaker.  
+This Python3 package allows you to create, edit and analyze all kinds of text files, with a special focus on ab-initio calculations. Formally known as InputMaker.  
 
-Just as the Egyptian god, Thoth is *married* with [Maat](https://github.com/pablogila/Maat), another super useful python package to analyze data from your experiments.  
+Just as the Egyptian god, Thoth is *married* with [Maat](https://github.com/pablogila/Maat), another super useful python package to analyze data from your experiments. Although Maat is not required to run Thoth, it is super useful anyway, so check it out.  
 
 
 ## Installation
@@ -16,7 +16,7 @@ python3 -m venv .venv
 source .venv/bin/activate
 ```
 
-Then, enter the downloaded `/Thoth/` directory, and install the package with pip:  
+Then, clone the repository from [GitHub](https://github.com/pablogila/Thoth/) or download it as a ZIP and run inside the `/Thoth/` directory:  
 ```bash
 pip install .
 ```

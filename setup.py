@@ -2,7 +2,7 @@ from setuptools import setup
 import re
 
 DESCRIPTION = 'Thoth'
-LONG_DESCRIPTION = "'Text Handling & Optimization Toolkit Helper', or Thoth, is a tool to assist in the creation, modification and analysis of text files, with a special focus in (but not limited to) ab-initio calculations."
+LONG_DESCRIPTION = "The Helpful & Optimized Text Helper, or Thoth, is a tool to assist in the creation, modification and analysis of text files, with a special focus in (but not limited to) ab-initio calculations."
 AUTHOR = 'Pablo Gila-Herranz'
 AUTHOR_EMAIL = 'pgila001@ikasle.ehu.eus'
 

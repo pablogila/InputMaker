@@ -20,8 +20,9 @@ from .extract import number, string
 def read_in(file):
     '''
     Reads an input `file` from Quantum ESPRESSO,
-    returning a Pandas dataframe with the input values used.
+    returning a Pandas DataFrame with the input values used.
     '''
+    file = get(file)
     data = {}
     lines = find('=', file)
     for line in lines:
