@@ -16,7 +16,7 @@ This package contains the following submodules:
 Additionally, some specific modules for use in tandem with ab-initio codes are included:
 - `thoth.qe`. Specific module for Quantum ESPRESSO.
 
-The documentation can be compiled automatically using [pdoc](https://pdoc.dev/), by running:
+The documentation can be compiled automatically using [pdoc](https://pdoc.dev/) and Thoth itself, by running:
 ```shell
 source pdoc.sh
 ```
@@ -48,7 +48,7 @@ from . import extract
 from . import qe
 
 
-version = 'v4.3.0'
+version='v4.3.1'
 '''
 Package version, using semantic versioning to indicate breaking changes,
 as in v<MAJOR>.<MINOR>.<PATCH>.

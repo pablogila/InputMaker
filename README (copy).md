@@ -1,4 +1,4 @@
-# Thoth v4.3.1
+# Thoth ["version='v4.3.0'"]
 
 Welcome to **T**he **H**elpful & **O**ptimized **T**ext **H**elper; or just **Thoth**, as the Egyptian god of writing, wisdom and magic.  
 
@@ -36,9 +36,9 @@ This package contains the following submodules:
 Additionally, some specific modules for use in tandem with ab-initio codes are included:
 - [qe](https://pablogila.github.io/Thoth/thoth/call.html). Specific module for Quantum ESPRESSO.
 
-The documentation can be compiled automatically using [pdoc](https://pdoc.dev/) and Thoth itself, by running:
+The documentation can be compiled automatically using [pdoc](https://pdoc.dev/), by running:
 ```shell
-python3 pdoc.py
+source pdoc.sh
 ```
 
 

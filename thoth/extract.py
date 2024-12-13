@@ -33,10 +33,11 @@ def number(text:str, name:str='') -> float:
     return None
     
 
-def string(text:str, name:str='', stop:str='') -> str:
+def string(text:str, name:str='', stop:str='', strip:bool=False) -> str:
     '''
     Extracts the `text` value of a given `name` variable from a raw string.
-    Stops before an optional `stop` string.\n
+    Stops before an optional `stop` string.
+    If `strip=True`, removes leading and trailing commas.\n
     Example:
     ```python
     >>> text = 'energy =   500.0 Ry were calculated'
@@ -48,9 +49,14 @@ def string(text:str, name:str='', stop:str='') -> str:
     if stop:
         pattern = re.compile(rf"{name}\s*[:=]?\s*(.*)(?={stop})")
     match = re.search(pattern, text)
-    if match:
-        return match.group(1)
-    return None
+    if not match:
+        return None
+    result = str(match.group(1))
+    result.strip()
+    if strip:
+        result = result.strip("'")
+        result = result.strip('"')
+    return result
 
 
 def column(text:str, column:int) -> float:

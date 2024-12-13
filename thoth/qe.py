@@ -152,13 +152,15 @@ def read_dirs(directory, input_str:str='.in', output_str:str='.out', calc_splitt
     Calls recursively `thoth.qe.read_dir`, reading Quantum ESPRESSO calculations
     from all the subfolders inside the given `directory`.
     Input and output files are determined automatically, but must be specified with
-    `input_str` and `output_str` if more than one file ends with `.in` or `.out`.\n
+    `input_str` and `output_str` if more than one file ends with `.in` or `.out`.
+
     To properly group the calculations per type, you can modify
     `calc_splitter` ('_' by default), `calc_type_index` (0) and `calc_id_index` (1).
-    With these default values, a subfolder named `CalculationType_CalculationID_AdditionalText`
+    With these default values, a subfolder named 'CalculationType_CalculationID_AdditionalText'
     will be interpreted as follows:
     - Calculation type: 'CalculationType'
     - CalculationID: 'CalculationID'
+
     If everything fails, the subfolder name will be used.
     '''
     print(f'Reading all Quantum ESPRESSO calculations from {directory} ...')

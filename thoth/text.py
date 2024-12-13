@@ -13,8 +13,6 @@ Functions to read and manipulate text.
 - `delete_between()`
 - `correct_with_dict()`
 
-> TODO: Update all functions to mmap for faster processing.
-
 ---
 '''
 
@@ -36,7 +34,6 @@ def find(keyword:str, file:str, number_of_matches:int=0, additional_lines:int=0,
     Negative values return the specified number of lines before the target line.
     The original ordering from the file is preserved.
     Defaults to `additional_lines=0`, only returning the target line.\n
-    > TODO: for number_of_matches == 0, just use mmap.findall() or rfindall()
     '''
     file_path = get(file)
     matches = []
@@ -47,11 +44,11 @@ def find(keyword:str, file:str, number_of_matches:int=0, additional_lines:int=0,
         mm = mmap.mmap(f.fileno(), length=0, access=mmap.ACCESS_READ)
         if number_of_matches > 0:
             start = 0
-        elif number_of_matches == 0:
+        elif number_of_matches < 0:
+            start = len(mm) - 1
+        else: # Find all matches
             start = 0
             counter_stop = 1
-        else:
-            start = len(mm) - 1
         while counter < counter_stop:
             if number_of_matches >= 0:
                 start = mm.find(keyword.encode(), start, len(mm)-1)
@@ -119,7 +116,7 @@ def replace(text:str, keyword:str, file:str, number_of_replacements:int=0) -> No
         else:
             replacements_left = abs(number_of_replacements)
             while replacements_left > 0:
-                if number_of_replacements > 0:
+                if number_of_replacements > 0: # If negative, start backwards
                     index = content.find(keyword)
                 else:
                     index = content.rfind(keyword)
@@ -133,14 +130,14 @@ def replace(text:str, keyword:str, file:str, number_of_replacements:int=0) -> No
 
 
 def replace_line(text: str, keyword: str, file: str, number_of_replacements:int=0) -> None:
-    """
+    '''
     Replaces the entire line containing the `keyword` string with the `text` string in the given `filename`.
     The value `number_of_replacements` specifies the number of lines to replace:
     1 to replace only the first line with the keyword, 2, 3...
     Use negative values to replace from the end of the file,
     e.g., to replace only the last line containing the keyword, use `number_of_replacements = -1`.
     To replace all lines, set `number_of_replacements = 0`, which is the value by default.
-    """
+    '''
     file_path = get(file)
     with open(file_path, 'r+') as f:
         lines = f.readlines()
@@ -156,13 +153,13 @@ def replace_line(text: str, keyword: str, file: str, number_of_replacements:int=
                         if keyword in lines[i]:
                             lines[i] = text + '\n'
                             replacements_left -= 1
-                            break
+                    break
                 else:
                     for i in range(start, -1, -1):
                         if keyword in lines[i]:
                             lines[i] = text + '\n'
                             replacements_left -= 1
-                            break
+                    break
                 start += step
         f.seek(0)
         f.writelines(lines)
