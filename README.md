@@ -39,7 +39,7 @@ Additionally, some specific modules for use in tandem with ab-initio codes are i
 
 The documentation can be compiled automatically using [pdoc](https://pdoc.dev/) and Thoth itself, by running:
 ```shell
-python3 pdoc.py
+python3 makedocs.py
 ```
 
 

@@ -152,7 +152,7 @@ An <a href="https://pablogila.github.io/InputMaker/">online documentation</a> is
 <p>The documentation can be compiled automatically using <a href="https://pdoc.dev/">pdoc</a> and Thoth itself, by running:</p>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code>python3<span class="w"> </span>pdoc.py
+<pre><span></span><code>python3<span class="w"> </span>makedocs.py
 </code></pre>
 </div>
 
@@ -196,11 +196,13 @@ See the attached GNU Affero General Public License for more details.  </p>
 </span><span id="L-11"><a href="#L-11"><span class="linenos">11</span></a><span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">qe</span>
 </span><span id="L-12"><a href="#L-12"><span class="linenos">12</span></a>
 </span><span id="L-13"><a href="#L-13"><span class="linenos">13</span></a>
-</span><span id="L-14"><a href="#L-14"><span class="linenos">14</span></a><span class="n">version</span><span class="o">=</span><span class="s1">&#39;v4.3.2&#39;</span>
-</span><span id="L-15"><a href="#L-15"><span class="linenos">15</span></a><span class="sd">&#39;&#39;&#39;</span>
-</span><span id="L-16"><a href="#L-16"><span class="linenos">16</span></a><span class="sd">Package version, using semantic versioning to indicate breaking changes,</span>
-</span><span id="L-17"><a href="#L-17"><span class="linenos">17</span></a><span class="sd">as in v&lt;MAJOR&gt;.&lt;MINOR&gt;.&lt;PATCH&gt;.</span>
-</span><span id="L-18"><a href="#L-18"><span class="linenos">18</span></a><span class="sd">&#39;&#39;&#39;</span>
+</span><span id="L-14"><a href="#L-14"><span class="linenos">14</span></a><span class="c1"># Do not use spaces between the = sign,</span>
+</span><span id="L-15"><a href="#L-15"><span class="linenos">15</span></a><span class="c1"># it is the keyword to deduce the version when making the docs!</span>
+</span><span id="L-16"><a href="#L-16"><span class="linenos">16</span></a><span class="n">version</span><span class="o">=</span><span class="s1">&#39;v4.3.2&#39;</span>
+</span><span id="L-17"><a href="#L-17"><span class="linenos">17</span></a><span class="sd">&#39;&#39;&#39;</span>
+</span><span id="L-18"><a href="#L-18"><span class="linenos">18</span></a><span class="sd">Package version, using semantic versioning to indicate breaking changes,</span>
+</span><span id="L-19"><a href="#L-19"><span class="linenos">19</span></a><span class="sd">as in v&lt;MAJOR&gt;.&lt;MINOR&gt;.&lt;PATCH&gt;.</span>
+</span><span id="L-20"><a href="#L-20"><span class="linenos">20</span></a><span class="sd">&#39;&#39;&#39;</span>
 </span></pre></div>
 
 
