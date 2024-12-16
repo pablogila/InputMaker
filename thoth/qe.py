@@ -19,10 +19,11 @@ from .text import find
 from .extract import number, string
 
 
-def read_in(file):
+def read_in(file) -> pd.DataFrame:
     '''
     Reads an input `file` from Quantum ESPRESSO,
     returning a Pandas DataFrame with the input values used.
+    The columns are named after the name of the corresponding variable.
     '''
     file = get(file)
     data = {}
@@ -55,7 +56,9 @@ def read_out(file) -> pd.DataFrame:
     '''
     Reads an output `file` from Quantum ESPRESSO,
     returning a Pandas DataFrame with the following columns:
-    `'Energy'`, `'Total force'`, `'Total SCF correction'`, `'Runtime'`, `'JOB DONE'`, `'BFGS converged'`, `'BFGS failed'`, `'Maxiter reached'`, `'Error'`.
+    `'Energy'` (float), `'Total force'` (float), `'Total SCF correction'` (float),
+    `'Runtime'` (str), `'JOB DONE'` (bool), `'BFGS converged'` (bool), `'BFGS failed'` (bool),
+    `'Maxiter reached'` (bool), `'Error'` (str), `'Success'` (bool).
     '''
     file = get(file)
 
@@ -125,13 +128,13 @@ def read_out(file) -> pd.DataFrame:
     return pd.DataFrame.from_dict([output])
 
 
-def read_dir(folder, input_str:str='.in', output_str:str='.out'):
+def read_dir(folder, input_str:str='.in', output_str:str='.out') -> pd.DataFrame:
     '''
     Takes a `folder` containing a Quantum ESPRESSO calculation,
     and returns a Pandas DataFrame containing the input parameters and output results.
     Input and output files are determined automatically,
     but must be specified with `input_str` and `output_str` if more than one file ends with `.in` or `.out`.
-    To extract values only from the input or only from the output, check `read_in` and `read_out`.
+    To extract values only from the input or only from the output, check `read_in()` and `read_out()`.
     '''
     input_file = get(folder, input_str)
     output_file = get(folder, output_str)
@@ -149,17 +152,18 @@ def read_dir(folder, input_str:str='.in', output_str:str='.out'):
 
 def read_dirs(directory, input_str:str='.in', output_str:str='.out', calc_splitter='_', calc_type_index=0, calc_id_index=1):
     '''
-    Calls recursively `thoth.qe.read_dir`, reading Quantum ESPRESSO calculations
+    Calls recursively `read_dir()`, reading Quantum ESPRESSO calculations
     from all the subfolders inside the given `directory`.
+    The results are saved to CSV files inside the current directory.
     Input and output files are determined automatically, but must be specified with
     `input_str` and `output_str` if more than one file ends with `.in` or `.out`.
 
-    To properly group the calculations per type, you can modify
-    `calc_splitter` ('_' by default), `calc_type_index` (0) and `calc_id_index` (1).
-    With these default values, a subfolder named 'CalculationType_CalculationID_AdditionalText'
+    To properly group the calculations per type, saving separated CSVs for each calculation type,
+    you can modify `calc_splitter` ('_' by default), `calc_type_index` (0) and `calc_id_index` (1).
+    With these default values, a subfolder named './CalculationType_CalculationID_AdditionalText/'
     will be interpreted as follows:
-    - Calculation type: 'CalculationType'
-    - CalculationID: 'CalculationID'
+    - Calculation type: 'CalculationType' (The output CSV will be named after this)
+    - CalculationID: 'CalculationID' (Stored in the 'ID' column of the resulting dataframe)
 
     If everything fails, the subfolder name will be used.
     '''
