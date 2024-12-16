@@ -42,7 +42,7 @@ def string(text:str, name:str='', stop:str='', strip:bool=False) -> str:
     ```python
     >>> text = 'energy =   500.0 Ry were calculated'
     >>> thoth.extract.string(text, 'energy', 'were')
-    '500.0 Ry '  # String output
+    '500.0 Ry'  # String output
     ```
     '''
     pattern = re.compile(rf"{name}\s*[:=]?\s*(.*)")
@@ -56,6 +56,7 @@ def string(text:str, name:str='', stop:str='', strip:bool=False) -> str:
     if strip:
         result = result.strip("'")
         result = result.strip('"')
+        result.strip()
     return result
 
 

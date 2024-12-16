@@ -1,4 +1,4 @@
-# Thoth v4.3.1
+# Thoth v4.3.2
 
 Welcome to **T**he **H**elpful & **O**ptimized **T**ext **H**elper; or just **Thoth**, as the Egyptian god of writing, wisdom and magic.  
 
@@ -24,13 +24,14 @@ pip install .
 
 ## Documentation
 
-Documentation is available locally on the `docs/inputmaker.html` folder.
+Documentation is available locally on the `docs/thoth.html` folder.
 An [online documentation](https://pablogila.github.io/InputMaker/) is also available.
 
 This package contains the following submodules:
 - [file](https://pablogila.github.io/Thoth/thoth/file.html). Manipulate files.
 - [text](https://pablogila.github.io/Thoth/thoth/text.html). Read and manipulate text.
 - [extract](https://pablogila.github.io/Thoth/thoth/extract.html). Extract data from raw text strings.
+- [alias](https://pablogila.github.io/Thoth/thoth/alias.html). Common dictionaries to normalise user inputs.
 - [call](https://pablogila.github.io/Thoth/thoth/call.html). Run bash scripts and related.
 
 Additionally, some specific modules for use in tandem with ab-initio codes are included:

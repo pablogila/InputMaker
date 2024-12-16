@@ -86,7 +86,7 @@
     </ul>
 
 
-            <footer>Thoth v4.3.1 documentation</footer>
+            <footer>Thoth v4.3.2 documentation</footer>
 
         <a class="attribution" title="pdoc: Python API documentation generator" href="https://pdoc.dev" target="_blank">
             built with <span class="visually-hidden">pdoc</span><img
@@ -163,7 +163,7 @@
 </span><span id="L-42"><a href="#L-42"><span class="linenos">42</span></a><span class="sd">    ```python</span>
 </span><span id="L-43"><a href="#L-43"><span class="linenos">43</span></a><span class="sd">    &gt;&gt;&gt; text = &#39;energy =   500.0 Ry were calculated&#39;</span>
 </span><span id="L-44"><a href="#L-44"><span class="linenos">44</span></a><span class="sd">    &gt;&gt;&gt; thoth.extract.string(text, &#39;energy&#39;, &#39;were&#39;)</span>
-</span><span id="L-45"><a href="#L-45"><span class="linenos">45</span></a><span class="sd">    &#39;500.0 Ry &#39;  # String output</span>
+</span><span id="L-45"><a href="#L-45"><span class="linenos">45</span></a><span class="sd">    &#39;500.0 Ry&#39;  # String output</span>
 </span><span id="L-46"><a href="#L-46"><span class="linenos">46</span></a><span class="sd">    ```</span>
 </span><span id="L-47"><a href="#L-47"><span class="linenos">47</span></a><span class="sd">    &#39;&#39;&#39;</span>
 </span><span id="L-48"><a href="#L-48"><span class="linenos">48</span></a>    <span class="n">pattern</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">rf</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">\s*[:=]?\s*(.*)&quot;</span><span class="p">)</span>
@@ -177,22 +177,23 @@
 </span><span id="L-56"><a href="#L-56"><span class="linenos">56</span></a>    <span class="k">if</span> <span class="n">strip</span><span class="p">:</span>
 </span><span id="L-57"><a href="#L-57"><span class="linenos">57</span></a>        <span class="n">result</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;&#39;&quot;</span><span class="p">)</span>
 </span><span id="L-58"><a href="#L-58"><span class="linenos">58</span></a>        <span class="n">result</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;&quot;&#39;</span><span class="p">)</span>
-</span><span id="L-59"><a href="#L-59"><span class="linenos">59</span></a>    <span class="k">return</span> <span class="n">result</span>
-</span><span id="L-60"><a href="#L-60"><span class="linenos">60</span></a>
+</span><span id="L-59"><a href="#L-59"><span class="linenos">59</span></a>        <span class="n">result</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+</span><span id="L-60"><a href="#L-60"><span class="linenos">60</span></a>    <span class="k">return</span> <span class="n">result</span>
 </span><span id="L-61"><a href="#L-61"><span class="linenos">61</span></a>
-</span><span id="L-62"><a href="#L-62"><span class="linenos">62</span></a><span class="k">def</span> <span class="nf">column</span><span class="p">(</span><span class="n">text</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">column</span><span class="p">:</span><span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-</span><span id="L-63"><a href="#L-63"><span class="linenos">63</span></a><span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
-</span><span id="L-64"><a href="#L-64"><span class="linenos">64</span></a><span class="sd">    Extracts the desired float `column` of a given `string`.</span>
-</span><span id="L-65"><a href="#L-65"><span class="linenos">65</span></a><span class="sd">    &#39;&#39;&#39;</span>
-</span><span id="L-66"><a href="#L-66"><span class="linenos">66</span></a>    <span class="k">if</span> <span class="n">text</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="L-67"><a href="#L-67"><span class="linenos">67</span></a>        <span class="k">return</span> <span class="kc">None</span>
-</span><span id="L-68"><a href="#L-68"><span class="linenos">68</span></a>    <span class="n">columns</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
-</span><span id="L-69"><a href="#L-69"><span class="linenos">69</span></a>    <span class="n">pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;(-?\d+(?:\.\d+)?(?:[eE][+\-]?\d+)?)&#39;</span>
-</span><span id="L-70"><a href="#L-70"><span class="linenos">70</span></a>    <span class="k">if</span> <span class="n">column</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">columns</span><span class="p">):</span>
-</span><span id="L-71"><a href="#L-71"><span class="linenos">71</span></a>        <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">columns</span><span class="p">[</span><span class="n">column</span><span class="p">])</span>
-</span><span id="L-72"><a href="#L-72"><span class="linenos">72</span></a>        <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
-</span><span id="L-73"><a href="#L-73"><span class="linenos">73</span></a>            <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
-</span><span id="L-74"><a href="#L-74"><span class="linenos">74</span></a>    <span class="k">return</span> <span class="kc">None</span>
+</span><span id="L-62"><a href="#L-62"><span class="linenos">62</span></a>
+</span><span id="L-63"><a href="#L-63"><span class="linenos">63</span></a><span class="k">def</span> <span class="nf">column</span><span class="p">(</span><span class="n">text</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">column</span><span class="p">:</span><span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+</span><span id="L-64"><a href="#L-64"><span class="linenos">64</span></a><span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+</span><span id="L-65"><a href="#L-65"><span class="linenos">65</span></a><span class="sd">    Extracts the desired float `column` of a given `string`.</span>
+</span><span id="L-66"><a href="#L-66"><span class="linenos">66</span></a><span class="sd">    &#39;&#39;&#39;</span>
+</span><span id="L-67"><a href="#L-67"><span class="linenos">67</span></a>    <span class="k">if</span> <span class="n">text</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="L-68"><a href="#L-68"><span class="linenos">68</span></a>        <span class="k">return</span> <span class="kc">None</span>
+</span><span id="L-69"><a href="#L-69"><span class="linenos">69</span></a>    <span class="n">columns</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+</span><span id="L-70"><a href="#L-70"><span class="linenos">70</span></a>    <span class="n">pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;(-?\d+(?:\.\d+)?(?:[eE][+\-]?\d+)?)&#39;</span>
+</span><span id="L-71"><a href="#L-71"><span class="linenos">71</span></a>    <span class="k">if</span> <span class="n">column</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">columns</span><span class="p">):</span>
+</span><span id="L-72"><a href="#L-72"><span class="linenos">72</span></a>        <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">columns</span><span class="p">[</span><span class="n">column</span><span class="p">])</span>
+</span><span id="L-73"><a href="#L-73"><span class="linenos">73</span></a>        <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+</span><span id="L-74"><a href="#L-74"><span class="linenos">74</span></a>            <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+</span><span id="L-75"><a href="#L-75"><span class="linenos">75</span></a>    <span class="k">return</span> <span class="kc">None</span>
 </span></pre></div>
 
 
@@ -262,7 +263,7 @@
 </span><span id="string-43"><a href="#string-43"><span class="linenos">43</span></a><span class="sd">    ```python</span>
 </span><span id="string-44"><a href="#string-44"><span class="linenos">44</span></a><span class="sd">    &gt;&gt;&gt; text = &#39;energy =   500.0 Ry were calculated&#39;</span>
 </span><span id="string-45"><a href="#string-45"><span class="linenos">45</span></a><span class="sd">    &gt;&gt;&gt; thoth.extract.string(text, &#39;energy&#39;, &#39;were&#39;)</span>
-</span><span id="string-46"><a href="#string-46"><span class="linenos">46</span></a><span class="sd">    &#39;500.0 Ry &#39;  # String output</span>
+</span><span id="string-46"><a href="#string-46"><span class="linenos">46</span></a><span class="sd">    &#39;500.0 Ry&#39;  # String output</span>
 </span><span id="string-47"><a href="#string-47"><span class="linenos">47</span></a><span class="sd">    ```</span>
 </span><span id="string-48"><a href="#string-48"><span class="linenos">48</span></a><span class="sd">    &#39;&#39;&#39;</span>
 </span><span id="string-49"><a href="#string-49"><span class="linenos">49</span></a>    <span class="n">pattern</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">rf</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">\s*[:=]?\s*(.*)&quot;</span><span class="p">)</span>
@@ -276,7 +277,8 @@
 </span><span id="string-57"><a href="#string-57"><span class="linenos">57</span></a>    <span class="k">if</span> <span class="n">strip</span><span class="p">:</span>
 </span><span id="string-58"><a href="#string-58"><span class="linenos">58</span></a>        <span class="n">result</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;&#39;&quot;</span><span class="p">)</span>
 </span><span id="string-59"><a href="#string-59"><span class="linenos">59</span></a>        <span class="n">result</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;&quot;&#39;</span><span class="p">)</span>
-</span><span id="string-60"><a href="#string-60"><span class="linenos">60</span></a>    <span class="k">return</span> <span class="n">result</span>
+</span><span id="string-60"><a href="#string-60"><span class="linenos">60</span></a>        <span class="n">result</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+</span><span id="string-61"><a href="#string-61"><span class="linenos">61</span></a>    <span class="k">return</span> <span class="n">result</span>
 </span></pre></div>
 
 
@@ -289,7 +291,7 @@ If <code>strip=True</code>, removes leading and trailing commas.</p>
 <div class="pdoc-code codehilite">
 <pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="n">text</span> <span class="o">=</span> <span class="s1">&#39;energy =   500.0 Ry were calculated&#39;</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="n"><a href="#string">thoth.extract.string</a></span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="s1">&#39;energy&#39;</span><span class="p">,</span> <span class="s1">&#39;were&#39;</span><span class="p">)</span>
-<span class="s1">&#39;500.0 Ry &#39;</span>  <span class="c1"># String output</span>
+<span class="s1">&#39;500.0 Ry&#39;</span>  <span class="c1"># String output</span>
 </code></pre>
 </div>
 </div>
@@ -307,19 +309,19 @@ If <code>strip=True</code>, removes leading and trailing commas.</p>
 
     </div>
     <a class="headerlink" href="#column"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="column-63"><a href="#column-63"><span class="linenos">63</span></a><span class="k">def</span> <span class="nf">column</span><span class="p">(</span><span class="n">text</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">column</span><span class="p">:</span><span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-</span><span id="column-64"><a href="#column-64"><span class="linenos">64</span></a><span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
-</span><span id="column-65"><a href="#column-65"><span class="linenos">65</span></a><span class="sd">    Extracts the desired float `column` of a given `string`.</span>
-</span><span id="column-66"><a href="#column-66"><span class="linenos">66</span></a><span class="sd">    &#39;&#39;&#39;</span>
-</span><span id="column-67"><a href="#column-67"><span class="linenos">67</span></a>    <span class="k">if</span> <span class="n">text</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="column-68"><a href="#column-68"><span class="linenos">68</span></a>        <span class="k">return</span> <span class="kc">None</span>
-</span><span id="column-69"><a href="#column-69"><span class="linenos">69</span></a>    <span class="n">columns</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
-</span><span id="column-70"><a href="#column-70"><span class="linenos">70</span></a>    <span class="n">pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;(-?\d+(?:\.\d+)?(?:[eE][+\-]?\d+)?)&#39;</span>
-</span><span id="column-71"><a href="#column-71"><span class="linenos">71</span></a>    <span class="k">if</span> <span class="n">column</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">columns</span><span class="p">):</span>
-</span><span id="column-72"><a href="#column-72"><span class="linenos">72</span></a>        <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">columns</span><span class="p">[</span><span class="n">column</span><span class="p">])</span>
-</span><span id="column-73"><a href="#column-73"><span class="linenos">73</span></a>        <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
-</span><span id="column-74"><a href="#column-74"><span class="linenos">74</span></a>            <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
-</span><span id="column-75"><a href="#column-75"><span class="linenos">75</span></a>    <span class="k">return</span> <span class="kc">None</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="column-64"><a href="#column-64"><span class="linenos">64</span></a><span class="k">def</span> <span class="nf">column</span><span class="p">(</span><span class="n">text</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">column</span><span class="p">:</span><span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+</span><span id="column-65"><a href="#column-65"><span class="linenos">65</span></a><span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+</span><span id="column-66"><a href="#column-66"><span class="linenos">66</span></a><span class="sd">    Extracts the desired float `column` of a given `string`.</span>
+</span><span id="column-67"><a href="#column-67"><span class="linenos">67</span></a><span class="sd">    &#39;&#39;&#39;</span>
+</span><span id="column-68"><a href="#column-68"><span class="linenos">68</span></a>    <span class="k">if</span> <span class="n">text</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="column-69"><a href="#column-69"><span class="linenos">69</span></a>        <span class="k">return</span> <span class="kc">None</span>
+</span><span id="column-70"><a href="#column-70"><span class="linenos">70</span></a>    <span class="n">columns</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+</span><span id="column-71"><a href="#column-71"><span class="linenos">71</span></a>    <span class="n">pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;(-?\d+(?:\.\d+)?(?:[eE][+\-]?\d+)?)&#39;</span>
+</span><span id="column-72"><a href="#column-72"><span class="linenos">72</span></a>    <span class="k">if</span> <span class="n">column</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">columns</span><span class="p">):</span>
+</span><span id="column-73"><a href="#column-73"><span class="linenos">73</span></a>        <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">columns</span><span class="p">[</span><span class="n">column</span><span class="p">])</span>
+</span><span id="column-74"><a href="#column-74"><span class="linenos">74</span></a>        <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+</span><span id="column-75"><a href="#column-75"><span class="linenos">75</span></a>            <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+</span><span id="column-76"><a href="#column-76"><span class="linenos">76</span></a>    <span class="k">return</span> <span class="kc">None</span>
 </span></pre></div>
 
 

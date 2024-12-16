@@ -7,11 +7,27 @@ Run this script as `python3 pdoc.py`.
 
 import thoth as th
 
+readme = './README.md'
+temp_readme = './_README_temp.md'
+
+fix_dict ={
+    '[file](https://pablogila.github.io/Thoth/thoth/file.html)'         : '`thoth.file`',
+    '[text](https://pablogila.github.io/Thoth/thoth/text.html)'         : '`thoth.text`',
+    '[extract](https://pablogila.github.io/Thoth/thoth/extract.html)'   : '`thoth.extract`',
+    '[alias](https://pablogila.github.io/Thoth/thoth/alias.html)'       : '`thoth.alias`',
+    '[call](https://pablogila.github.io/Thoth/thoth/call.html)'         : '`thoth.call`',
+    '[qe](https://pablogila.github.io/Thoth/thoth/call.html)'           : '`thoth.qe`',
+} 
+
 version = th.text.find('version=', './thoth/__init__.py', -1)[0]
-print(version)
 version = th.extract.string(version, 'version', None, True)
+
 print(f'Updating README to {version}...')
-th.text.replace_line(f'# Thoth {version}', '# Thoth v','./README.md', 1)
+th.text.replace_line(f'# Thoth {version}', '# Thoth v', readme, 1)
+
 print('Updating docs with Pdoc...')
+th.file.from_template(readme, temp_readme, None, fix_dict)
 th.call.shell(f"pdoc ./thoth/ -o ./docs --mermaid --math --footer-text='Thoth {version} documentation'")
+th.file.remove(temp_readme)
+print('Done!')
 

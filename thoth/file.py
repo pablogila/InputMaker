@@ -77,7 +77,8 @@ def get_list(folder:str, filters=None, abspath:bool=True) -> list:
 
 def copy(original_file:str, new_file:str) -> None:
     '''
-    Copies the content of `original_file` to `new_file`.
+    Copies the content of `original_file` to `new_file` with shutil,
+    after making sure that the file exists with `thoth.file.get()`.
     '''
     original_file_path = get(original_file)
     file = shutil.copy(original_file_path, new_file)
@@ -98,7 +99,12 @@ def remove(file:str) -> None:
     Removes the given `file`.
     '''
     file_path = get(file)
-    shutil.rmtree(file_path)
+    if os.path.isdir(file_path):
+        shutil.rmtree(file_path)
+    elif os.path.isfile(file_path):
+        os.remove(file_path)
+    else:
+        raise FileNotFoundError(f"No such file or directory: '{file_path}'")
     return None
 
 
@@ -168,17 +174,23 @@ def copy_to_subfolders(folder=None, extension:str=None, strings_to_delete:list=[
     return None
 
 
-def from_template(template:str, new_file:str, comment:str) -> None:
+def from_template(template:str, new_file:str, comment:str=None, fixing_dict:dict=None) -> None:
     '''
-    Same as `copy_file`, but adds a `comment`
-    at the beginning of the new file.
-    > TODO: Update to a more memory-friendly approach, such as mmap.
+    Same as `copy_file`, but optionally adds a `comment` at the beginning of the new file.
+    Also, it optionally corrects the output file with a `fixing_dict` dictionary.
     '''
     copy(template, new_file)
-    with open(new_file, 'r') as file:
-        lines = file.readlines()
-    lines.insert(0, comment + '\n')
-    with open(new_file, 'w') as file:
-        file.writelines(lines)
+    if comment:
+        with open(new_file, 'r+') as f:
+            content = f.read()
+            f.seek(0)
+            f.write(comment + '\n' + content)
+    if fixing_dict:
+        with open(new_file, 'r+') as f:
+            content = f.read()
+            for key, value in fixing_dict.items():
+                content = content.replace(key, value)
+            f.seek(0)
+            f.write(content)
     return None
 

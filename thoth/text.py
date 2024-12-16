@@ -296,22 +296,15 @@ def delete_between(key1:str, key2:str, file:str) -> None:
 
 def correct_with_dict(file:str, fixing_dict:dict) -> None:
     '''
-    Corrects the given `file` using the `fixing_dict` dictionary.
+    Corrects the given text `file` using the `fixing_dict` dictionary.
     '''
     file_path = get(file)
-    found_key = False
-    with open(file_path, 'r') as f:
-        lines = f.readlines()
-    for line in lines:
-        if any(key in line for key in fixing_dict.keys()):
-            found_key = True
-            break
-    if found_key:
-        print("Correcting " + file_path + " ...")
-        with open(file_path, 'w') as f:
-            for line in lines:
-                for key, value in fixing_dict.items():
-                    line = line.replace(key, value)
-                f.write(line)
+
+    with open(file_path, 'r+') as f:
+        content = f.read()
+        for key, value in fixing_dict.items():
+            content = content.replace(key, value)
+        f.seek(0)
+        f.write(content)
     return None
 
