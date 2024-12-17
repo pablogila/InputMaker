@@ -21,7 +21,7 @@ from .file import *
 import mmap
 
 
-def find(keyword:str, file:str, number_of_matches:int=0, additional_lines:int=0, split_additional_lines:bool=False):
+def find(keyword:str, file:str, number_of_matches:int=0, additional_lines:int=0, split_additional_lines:bool=False) -> list:
     '''
     Finds the line(s) containing the `keyword` string in the given `file`.
     Regular expressions can be used.\n
