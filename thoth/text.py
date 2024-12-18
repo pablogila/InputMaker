@@ -23,8 +23,8 @@ import mmap
 
 def find(keyword:str, file:str, number_of_matches:int=0, additional_lines:int=0, split_additional_lines:bool=False) -> list:
     '''
-    Finds the line(s) containing the `keyword` string in the given `file`.
-    Regular expressions can be used.\n
+    Finds the line(s) containing the `keyword` string in the given `file`,
+    returning a list with the matches. Regular expressions can be used.\n
     The value `number_of_matches` specifies the max number of matches to be returned.
     Defaults to 0 to return all possible matches. Set it to 1 to return only one match,
     or to negative integers to start the search from the end of the file upwards.\n
@@ -33,7 +33,9 @@ def find(keyword:str, file:str, number_of_matches:int=0, additional_lines:int=0,
     2 to return the found line plus two additional lines below, etc.
     Negative values return the specified number of lines before the target line.
     The original ordering from the file is preserved.
-    Defaults to `additional_lines=0`, only returning the target line.\n
+    Defaults to `additional_lines=0`, only returning the target line.
+    By default, the additional lines are returned in the same list item as the match separated by a `\\n`,
+    unless `split_additional_lines=True`, in which case they are added as additional items in the list.
     '''
     file_path = get(file)
     matches = []
