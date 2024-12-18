@@ -3,6 +3,8 @@
 Functions to read and manipulate text.
 
 # Index
+- `find_pos()`
+- `find_pos_regex`
 - `find()`
 - `replace()`
 - `replace_line()`
@@ -19,12 +21,84 @@ Functions to read and manipulate text.
 
 from .file import *
 import mmap
+import re
 
 
-def find(keyword:str, file:str, number_of_matches:int=0, additional_lines:int=0, split_additional_lines:bool=False) -> list:
+def find_pos(keyword:str, file, number_of_matches:int=0) -> list:
+    '''
+    Returns a list of the positions of a `keyword` in a given `file`.\n
+    The value `number_of_matches` specifies the max number of matches to return.
+    Defaults to 0 to return all possible matches. Set it to 1 to return only one match,
+    or to negative integers to start searching from the end of the file upwards.\n
+    This method is faster than `find_pos_regex()`, but does not search for regular expressions.
+    '''
+    file_path = get(file)
+    positions = []
+    with open(file_path, 'r+b') as f:
+        mm = mmap.mmap(f.fileno(), length=0, access=mmap.ACCESS_READ)
+    keyword_bytes = keyword.encode()
+    if number_of_matches >= 0:
+        start = 0
+        while number_of_matches == 0 or len(positions) < number_of_matches:
+            pos = mm.find(keyword_bytes, start)
+            if pos == -1:
+                break
+            end = pos + len(keyword_bytes)
+            positions.append((pos, end))
+            start = end
+    else:
+        start = len(mm)
+        while len(positions) < abs(number_of_matches):
+            pos = mm.rfind(keyword_bytes, 0, start)
+            if pos == -1:
+                break
+            end = pos + len(keyword_bytes)
+            positions.append((pos, end))
+            start = pos
+        positions.reverse()
+    return positions
+
+
+def find_pos_regex(keyword:str, file, number_of_matches:int=0) -> list:
+    '''
+    Returns a list of the positions of a `keyword` in a given `file`.\n
+    The value `number_of_matches` specifies the max number of matches to return.
+    Defaults to 0 to return all possible matches. Set it to 1 to return only one match,
+    or to negative integers to start searching from the end of the file upwards.\n
+    This method is slower than `find_pos()`, but it can search for regular expressions.
+    '''
+    file_path = get(file)
+    positions = []
+    with open(file_path, 'r', encoding='utf-8') as f:
+        content = f.read()
+    if number_of_matches > 0:
+        start = 0
+        while len(positions) < number_of_matches:
+            match = re.search(keyword, content[start:])
+            if not match:
+                break
+            match_start = start + match.start()
+            match_end = start + match.end()
+            positions.append((match_start, match_end))
+            start = match_end
+    else:
+        all_matches = list(re.finditer(keyword, content))
+        if number_of_matches == 0:
+            positions = [(match.start(), match.end()) for match in all_matches]
+        else:
+            positions = [(match.start(), match.end()) for match in all_matches[-abs(number_of_matches):]]
+    return positions
+
+
+def find(keyword:str,
+         file:str,
+         number_of_matches:int=0,
+         additional_lines:int=0,
+         split_additional_lines: bool=False,
+         regex:bool=False) -> list:
     '''
     Finds the line(s) containing the `keyword` string in the given `file`,
-    returning a list with the matches. Regular expressions can be used.\n
+    returning a list with the matches.\n
     The value `number_of_matches` specifies the max number of matches to be returned.
     Defaults to 0 to return all possible matches. Set it to 1 to return only one match,
     or to negative integers to start the search from the end of the file upwards.\n
@@ -35,60 +109,40 @@ def find(keyword:str, file:str, number_of_matches:int=0, additional_lines:int=0,
     The original ordering from the file is preserved.
     Defaults to `additional_lines=0`, only returning the target line.
     By default, the additional lines are returned in the same list item as the match separated by a `\\n`,
-    unless `split_additional_lines=True`, in which case they are added as additional items in the list.
+    unless `split_additional_lines=True`, in which case they are added as additional items in the list.\n
+    To use regular expressions in the search, set `regex=True`.
+    By default regex search is deactivated, using the faster mmap.find and rfind methods instead.
     '''
     file_path = get(file)
     matches = []
-    # Counter to track the number of matches. If number_of_matches=0, counter remains 0.
-    counter = 0
-    counter_stop = abs(number_of_matches)
+    if regex:
+        positions = find_pos_regex(keyword, file, number_of_matches)
+    else:
+        positions = find_pos(keyword, file, number_of_matches)
     with open(file_path, 'r+b') as f:
         mm = mmap.mmap(f.fileno(), length=0, access=mmap.ACCESS_READ)
-        if number_of_matches > 0:
-            start = 0
-        elif number_of_matches < 0:
-            start = len(mm) - 1
-        else: # Find all matches
-            start = 0
-            counter_stop = 1
-        while counter < counter_stop:
-            if number_of_matches >= 0:
-                start = mm.find(keyword.encode(), start, len(mm)-1)
-            else:
-                start = mm.rfind(keyword.encode(), 0, start)
-            if start == -1:
-                break
-            # Get the positions of the full line containing the match
-            line_start = mm.rfind(b'\n', 0, start) +1
-            line_end = mm.find(b'\n', start, len(mm)-1)
-            # Get the additional lines
-            match_start = line_start
-            match_end = line_end
-            if match_start == -1:
-                match_start = 0
-            if match_end == -1:
-                match_end = len(mm)-1
-            if additional_lines > 0:
-                for _ in range(abs(additional_lines)):
-                    match_end = mm.find(b'\n', match_end+1, len(mm)-1)
-                    if match_end == -1:
-                        break
-            elif additional_lines < 0:
-                for _ in range(abs(additional_lines)):
-                    match_start = mm.rfind(b'\n', 0, match_start-1) +1
-                    if match_start == -1:
-                        break
-            # Save the matched lines in a list
-            matches.append(mm[match_start:match_end].decode())
-            # Stop or keep searching
-            if number_of_matches > 0:
-                start = match_end + 1
-                counter += 1
-            elif number_of_matches < 0:
-                start = match_start - 1
-                counter += 1
-            elif number_of_matches == 0:
-                start += 1
+    for start, end in positions:
+        # Get the positions of the full line containing the match
+        line_start = mm.rfind(b'\n', 0, start) + 1
+        line_end = mm.find(b'\n', start, len(mm)-1)
+        # Default values for the start and end of the line
+        if line_start == -1: line_start = 0
+        if line_end == -1: line_end = len(mm) - 1
+        # Adjust the line_end to add additional lines after the match
+        match_start = line_start
+        match_end = line_end
+        if additional_lines > 0:
+            for _ in range(abs(additional_lines)):
+                match_end = mm.find(b'\n', match_end + 1, len(mm)-1)
+                if match_end == -1:
+                    break
+        elif additional_lines < 0:
+            for _ in range(abs(additional_lines)):
+                match_start = mm.rfind(b'\n', 0, match_start - 1) + 1
+                if match_start == -1:
+                    break
+        # Save the matched lines
+        matches.append(mm[match_start:match_end].decode())
     if split_additional_lines:
         splitted_matches = []
         for string in matches:

@@ -9,7 +9,7 @@ import thoth as th
 
 readme = './README.md'
 temp_readme = './_README_temp.md'
-version_path = './thoth/__init__.py'
+version_path = './thoth/common.py'
 
 fix_dict ={
     '[file](https://pablogila.github.io/Thoth/thoth/file.html)'         : '`thoth.file`',
@@ -20,7 +20,7 @@ fix_dict ={
     '[qe](https://pablogila.github.io/Thoth/thoth/call.html)'           : '`thoth.qe`',
 } 
 
-version = th.text.find('version =', version_path, -1)[0]
+version = th.text.find(r"version =", version_path, -1)[0]
 version = th.extract.string(version, 'version', None, True)
 
 print(f'Updating README to {version}...')

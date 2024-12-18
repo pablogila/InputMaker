@@ -15,6 +15,7 @@ import subprocess
 import datetime
 import sys
 import os
+from .common import *
 
 
 def shell(command, cwd=None):
