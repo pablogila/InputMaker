@@ -18,6 +18,8 @@ fix_dict ={
     '[alias](https://pablogila.github.io/Thoth/thoth/alias.html)'       : '`thoth.alias`',
     '[call](https://pablogila.github.io/Thoth/thoth/call.html)'         : '`thoth.call`',
     '[qe](https://pablogila.github.io/Thoth/thoth/call.html)'           : '`thoth.qe`',
+    '[common](https://pablogila.github.io/Thoth/thoth/common.html)'     : '`thoth.common`',
+    '[phonopy](https://pablogila.github.io/Thoth/thoth/phonopy.html)'   : '`thoth.phonopy`',
 } 
 
 version = th.text.find(r"version =", version_path, -1)[0]

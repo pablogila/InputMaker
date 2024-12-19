@@ -8,6 +8,9 @@ Functions to read and manipulate text.
 - `find()`
 - `replace()`
 - `replace_line()`
+
+The following functions work, but will be updated for faster performance with `find_pos` and `find_pos_regex`:
+
 - `insert_under()`
 - `replace_under()`
 - `delete_under()`
@@ -24,7 +27,9 @@ import mmap
 import re
 
 
-def find_pos(keyword:str, file, number_of_matches:int=0) -> list:
+def find_pos(keyword:str,
+             file,
+             number_of_matches:int=0) -> list:
     '''
     Returns a list of the positions of a `keyword` in a given `file`.\n
     The value `number_of_matches` specifies the max number of matches to return.
@@ -59,7 +64,9 @@ def find_pos(keyword:str, file, number_of_matches:int=0) -> list:
     return positions
 
 
-def find_pos_regex(keyword:str, file, number_of_matches:int=0) -> list:
+def find_pos_regex(keyword:str,
+                   file,
+                   number_of_matches:int=0) -> list:
     '''
     Returns a list of the positions of a `keyword` in a given `file`.\n
     The value `number_of_matches` specifies the max number of matches to return.
@@ -124,7 +131,7 @@ def find(keyword:str,
     for start, end in positions:
         # Get the positions of the full line containing the match
         line_start = mm.rfind(b'\n', 0, start) + 1
-        line_end = mm.find(b'\n', start, len(mm)-1)
+        line_end = mm.find(b'\n', end, len(mm)-1)
         # Default values for the start and end of the line
         if line_start == -1: line_start = 0
         if line_end == -1: line_end = len(mm) - 1
@@ -152,74 +159,82 @@ def find(keyword:str,
     return matches
 
 
-def replace(text:str, keyword:str, file:str, number_of_replacements:int=0) -> None:
+def replace(text:str,
+            keyword:str,
+            file:str,
+            number_of_replacements:int=0,
+            regex:bool=False) -> None:
     '''
-    Replaces the `keyword` string with the `text` string in the given `filename`.
+    Replaces the `keyword` string with the `text` string in the given `file`.\n
     The value `number_of_replacements` specifies the number of replacements to perform:
     1 to replace only the first keyword found, 2, 3...
     Use negative values to replace from the end of the file,
-    eg. to replace the last found key, use `number_of_replacements = -1`.
-    To replace all values, set `number_of_replacements = 0`, which is the value by default.
+    eg. to replace the last found key, use `number_of_replacements=-1`.
+    To replace all values, set `number_of_replacements = 0`, which is the value by default.\n
+    To search with regular expressions, set `regex=True`.
     ```
     line... keyword ...line -> line... text ...line
     ```
     '''
     file_path = get(file)
+    if regex:
+        positions = find_pos_regex(keyword, file, number_of_replacements)
+    else:
+        positions = find_pos(keyword, file, number_of_replacements)
+    positions.reverse()  # Must start replacing from the end, otherwise the atual positions may change!
     with open(file_path, 'r+') as f:
         content = f.read()
-        if number_of_replacements == 0:
-            content = content.replace(keyword, text)
-        else:
-            replacements_left = abs(number_of_replacements)
-            while replacements_left > 0:
-                if number_of_replacements > 0: # If negative, start backwards
-                    index = content.find(keyword)
-                else:
-                    index = content.rfind(keyword)
-                if index == -1:
-                    break
-                content = "".join([content[:index], text, content[index + len(keyword):]])
-                replacements_left -= 1
+        for start, end in positions:
+            content = "".join([content[:start], text, content[end:]])
         f.seek(0)
         f.write(content)
         f.truncate()
 
 
-def replace_line(text: str, keyword: str, file: str, number_of_replacements:int=0) -> None:
+def replace_line(text:str,
+                 keyword:str,
+                 file:str,
+                 number_of_replacements:int=0,
+                 regex:bool=False) -> None:
     '''
-    Replaces the entire line containing the `keyword` string with the `text` string in the given `filename`.
+    Replaces the entire line containing the `keyword` string with the `text` string in the given `file`.
     The value `number_of_replacements` specifies the number of lines to replace:
     1 to replace only the first line with the keyword, 2, 3...
     Use negative values to replace from the end of the file,
     e.g., to replace only the last line containing the keyword, use `number_of_replacements = -1`.
     To replace all lines, set `number_of_replacements = 0`, which is the value by default.
+    ```
+    line... keyword ...line -> text
+    ```
     '''
     file_path = get(file)
-    with open(file_path, 'r+') as f:
-        lines = f.readlines()
-        if number_of_replacements == 0:
-            lines = [line.replace(keyword, text) for line in lines]
-        else:
-            replacements_left = abs(number_of_replacements)
-            step = 1 if number_of_replacements > 0 else -1
-            start = 0 if number_of_replacements > 0 else len(lines) - 1
-            while replacements_left > 0:
-                if step > 0:
-                    for i in range(start, len(lines)):
-                        if keyword in lines[i]:
-                            lines[i] = text + '\n'
-                            replacements_left -= 1
-                    break
-                else:
-                    for i in range(start, -1, -1):
-                        if keyword in lines[i]:
-                            lines[i] = text + '\n'
-                            replacements_left -= 1
-                    break
-                start += step
-        f.seek(0)
-        f.writelines(lines)
-        f.truncate()
+    if regex:
+        positions = find_pos_regex(keyword, file, number_of_replacements)
+    else:
+        positions = find_pos(keyword, file, number_of_replacements)
+    positions.reverse()  # Must start replacing from the end, otherwise the atual positions may change!
+    # Open the file in read-write mode
+    with open(file_path, 'r+b') as f:
+        with mmap.mmap(f.fileno(), length=0, access=mmap.ACCESS_WRITE) as mm:
+            for start, end in positions:
+                # Get the positions of the full line containing the match
+                line_start = mm.rfind(b'\n', 0, start) + 1
+                line_end = mm.find(b'\n', end, len(mm))
+                if line_start == -1:
+                    line_start = 0
+                if line_end == -1:
+                    line_end = len(mm)
+                # Replace the line
+                old_line = mm[line_start:line_end]
+                new_line = text.encode()
+                # Directly modify the memory-mapped region
+                if len(new_line) == len(old_line):
+                    mm[line_start:line_end] = new_line
+                else:  # Adjust content for differing line sizes
+                    remaining_content = mm[line_end:]
+                    updated_content = new_line + remaining_content
+                    mm.resize(len(mm) + len(new_line) - len(old_line))
+                    mm[line_start:] = updated_content
 
 
 def insert_under(text:str, keyword:str, file:str, only_first=False) -> None:

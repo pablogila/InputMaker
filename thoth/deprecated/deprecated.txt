@@ -1,3 +1,81 @@
+# Deprecated at v4.3.7:
+
+
+def replace_line_old(text: str, keyword: str, file: str, number_of_replacements:int=0) -> None:
+    '''
+    Replaces the entire line containing the `keyword` string with the `text` string in the given `filename`.
+    The value `number_of_replacements` specifies the number of lines to replace:
+    1 to replace only the first line with the keyword, 2, 3...
+    Use negative values to replace from the end of the file,
+    e.g., to replace only the last line containing the keyword, use `number_of_replacements = -1`.
+    To replace all lines, set `number_of_replacements = 0`, which is the value by default.
+    '''
+    file_path = get(file)
+    with open(file_path, 'r+') as f:
+        lines = f.readlines()
+        if number_of_replacements == 0:
+            lines = [line.replace(keyword, text) for line in lines]
+        else:
+            replacements_left = abs(number_of_replacements)
+            step = 1 if number_of_replacements > 0 else -1
+            start = 0 if number_of_replacements > 0 else len(lines) - 1
+            while replacements_left > 0:
+                if step > 0:
+                    for i in range(start, len(lines)):
+                        if keyword in lines[i]:
+                            lines[i] = text + '\n'
+                            replacements_left -= 1
+                    break
+                else:
+                    for i in range(start, -1, -1):
+                        if keyword in lines[i]:
+                            lines[i] = text + '\n'
+                            replacements_left -= 1
+                    break
+                start += step
+        f.seek(0)
+        f.writelines(lines)
+        f.truncate()
+
+
+def replace_old(text:str,
+                keyword:str,
+                file:str,
+                number_of_replacements:int=0) -> None:
+    '''
+    Replaces the `keyword` string with the `text` string in the given `filename`.
+    The value `number_of_replacements` specifies the number of replacements to perform:
+    1 to replace only the first keyword found, 2, 3...
+    Use negative values to replace from the end of the file,
+    eg. to replace the last found key, use `number_of_replacements = -1`.
+    To replace all values, set `number_of_replacements = 0`, which is the value by default.
+    ```
+    line... keyword ...line -> line... text ...line
+    ```
+    '''
+    file_path = get(file)
+    with open(file_path, 'r+') as f:
+        content = f.read()
+        if number_of_replacements == 0:
+            content = content.replace(keyword, text)
+        else:
+            replacements_left = abs(number_of_replacements)
+            while replacements_left > 0:
+                if number_of_replacements > 0: # If negative, start backwards
+                    index = content.find(keyword)
+                else:
+                    index = content.rfind(keyword)
+                if index == -1:
+                    break
+                content = "".join([content[:index], text, content[index + len(keyword):]])
+                replacements_left -= 1
+        f.seek(0)
+        f.write(content)
+        f.truncate()
+
+
+
+
 # Deprecated at v4.3.6:
 
 def find_old(keyword:str, file:str, number_of_matches:int=0, additional_lines:int=0, split_additional_lines:bool=False) -> list:
